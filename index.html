@@ -58,7 +58,11 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.5);
             margin-bottom: 10px;
         }
-        .thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
 
         .radio-name {
             font-size: 13.5px;
@@ -112,8 +116,23 @@
     <header><h1>Rádios</h1></header>
 
     <div class="section">
-        <div class="section-header">POP-ROCK SUGERIDAS</div>
-        <div id="poprock-carousel" class="carousel"></div>
+        <div class="section-header">TOP 15 BRASIL</div>
+        <div id="top-carousel" class="carousel"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">MPB SUGERIDAS</div>
+        <div id="mpb-carousel" class="carousel"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">SERTANEJO SUGERIDAS</div>
+        <div id="sertanejo-carousel" class="carousel"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">FORRÓ SUGERIDAS</div>
+        <div id="forro-carousel" class="carousel"></div>
     </div>
 
     <div class="section">
@@ -122,14 +141,19 @@
     </div>
 
     <div class="section">
-        <div class="section-header">SERTANEJO SUGERIDAS</div>
-        <div id="sertanejo-carousel" class="carousel"></div>
+        <div class="section-header">GOSPEL SUGERIDAS</div>
+        <div id="gospel-carousel" class="carousel"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">POP HITS SUGERIDAS</div>
+        <div id="pop-carousel" class="carousel"></div>
     </div>
 
     <!-- Modal -->
     <div id="details-modal">
         <div class="modal-content">
-            <img id="m-img" src="" class="big-img">
+            <img id="m-img" src="" class="big-img" onerror="this.src='https://via.placeholder.com/190/222/fff?text=📻';">
             <h2 id="m-title" class="modal-title"></h2>
             <p id="m-loc" class="modal-loc"></p>
             <p id="m-desc" style="color:#999; font-size:14px; line-height:1.4; margin:20px 0;"></p>
@@ -164,7 +188,7 @@
 
             fetchRadios: async (params, containerId) => {
                 try {
-                    const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${params}&limit=10&hidebroken=true&order=clickcount&reverse=true`);
+                    const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${params}&hidebroken=true`);
                     const data = await response.json();
                     app.renderRadios(data, containerId);
                 } catch (e) { console.error(e); }
@@ -179,10 +203,13 @@
                     card.className = 'radio-card';
                     card.onclick = () => app.openDetails(radio);
 
-                    const logo = radio.favicon || 'https://via.placeholder.com/130?text=RADIO';
+                    const logo = radio.favicon || 'https://via.placeholder.com/130/222/fff?text=📻';
 
                     card.innerHTML = `
-                        <div class="thumb"><img src="${logo}" alt="${radio.name}"></div>
+                        <div class="thumb">
+                            <img src="${logo}" alt="${radio.name}" 
+                                 onerror="this.src='https://via.placeholder.com/130/222/fff?text=📻'; this.onerror=null;">
+                        </div>
                         <div class="radio-name">${radio.name}</div>
                         <div class="radio-info">
                             ${radio.state ? radio.state + ' - ' : ''}${radio.country || 'Brasil'}
@@ -194,7 +221,7 @@
 
             openDetails: (radio) => {
                 app.currentStream = radio.url_resolved || radio.url;
-                document.getElementById('m-img').src = radio.favicon || 'https://via.placeholder.com/190?text=RADIO';
+                document.getElementById('m-img').src = radio.favicon || 'https://via.placeholder.com/190/222/fff?text=📻';
                 document.getElementById('m-title').innerText = radio.name;
                 document.getElementById('m-loc').innerText = `${radio.state || ''} ${radio.country ? '- ' + radio.country : 'Brasil'}`;
                 document.getElementById('m-desc').innerText = `Bitrate: ${radio.bitrate || '?'}kbps | Tags: ${radio.tags || 'Não informado'}`;
@@ -236,10 +263,14 @@
             },
 
             init: () => {
-                // Parâmetros diferentes para evitar repetição
-                app.fetchRadios("country=Brazil&tag=pop,rock", "poprock-carousel");
-                app.fetchRadios("country=Brazil&tag=rock", "rock-carousel");
-                app.fetchRadios("country=Brazil&tag=sertanejo", "sertanejo-carousel");
+                // MUITO MAIS RÁDIOS agora
+                app.fetchRadios("country=Brazil&order=clickcount&reverse=true&limit=20", "top-carousel");
+                app.fetchRadios("country=Brazil&tag=mpb&limit=15", "mpb-carousel");
+                app.fetchRadios("country=Brazil&tag=sertanejo&limit=15", "sertanejo-carousel");
+                app.fetchRadios("country=Brazil&tag=forro&limit=15", "forro-carousel");
+                app.fetchRadios("country=Brazil&tag=rock&limit=15", "rock-carousel");
+                app.fetchRadios("country=Brazil&tag=gospel&limit=15", "gospel-carousel");
+                app.fetchRadios("country=Brazil&tag=pop&limit=15", "pop-carousel");
             }
         };
 

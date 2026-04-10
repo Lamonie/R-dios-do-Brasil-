@@ -33,7 +33,6 @@
         }
         .card-img { width: 140px; height: 140px; object-fit: cover; display: block; background: #2c2c2e; }
         
-        /* Badge AM/FM */
         .badge-type {
             position: absolute; top: 10px; left: 10px; background: var(--apple-red);
             color: white; font-size: 9px; font-weight: 900; padding: 2px 6px;
@@ -62,9 +61,17 @@
         .nav-item span { font-size: 10px; font-weight: 700; text-transform: uppercase; }
         .nav-item.active { color: var(--apple-red); }
         .nav-item.active svg { fill: var(--apple-red); }
+
+        /* Badge Amarelo da Biblioteca Restaurado */
+        #badge-favs { 
+            position: absolute; top: -5px; right: 15px; background: var(--yellow); 
+            color: #000; font-size: 11px; font-weight: 900; min-width: 18px; 
+            height: 18px; border-radius: 50%; display: none; align-items: center; 
+            justify-content: center; border: 2px solid #000;
+        }
         
         .dock-play-btn { width: 58px; height: 58px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); }
-        #loading-trigger { height: 100px; display: flex; align-items: center; justify-content: center; color: var(--apple-red); font-weight: bold; }
+        #loading-trigger { height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--apple-red); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -76,7 +83,9 @@
         <div id="grid-area" class="grid-wrapper">
             <div id="section-grid-title" class="section-title" style="padding: 20px 0;">Explorar Estações</div>
             <div class="multi-direction-grid" id="master-grid"></div>
-            <div id="loading-trigger">Carregando mais rádios...</div>
+            <div id="loading-trigger">
+                <span>Carregando mais rádios...</span>
+            </div>
         </div>
     </div>
 
@@ -94,9 +103,9 @@
             <span>Início</span>
         </div>
         <div class="nav-item" onclick="changeTab('lib', this)">
-            <div id="badge-favs" style="display:none">0</div>
+            <div id="badge-favs">0</div>
             <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
-            <span>Música</span>
+            <span>Biblioteca</span>
         </div>
         <div class="dock-play-btn" onclick="togglePlayback()">
             <svg viewBox="0 0 24 24" width="30"><path id="play-icon" fill="white" d="M8 5v14l11-7z"/></svg>
@@ -113,44 +122,45 @@
         const audio = document.getElementById('audio-engine');
         const carouselsArea = document.getElementById('carousels-area');
         const masterGrid = document.getElementById('master-grid');
+        const badge = document.getElementById('badge-favs');
         
         let radioData = [];
         let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
         let offset = 0;
         let isFetching = false;
 
-        // Rádio AM Trapiá Manual
         const trapiaAM = {
-            name: "Trapiá AM/FM",
-            stationuuid: "trapia_custom_01",
+            name: "Trapiá AM",
+            stationuuid: "trapia_fixa_01",
             favicon: "https://trapiafm.com.br/wp-content/uploads/2023/04/cropped-logo-trapia-1.png",
             url_resolved: "https://shout11.srvstm.com/8314/stream",
-            state: "Ceará", country: "Brazil"
+            state: "Ceará", country: "Brazil", tags: "am, forro"
         };
 
-        // Função para carregar as rádios
         async function loadRadios(isInitial = false) {
             if(isFetching) return;
             isFetching = true;
             
             try {
-                // Se for inicial, carregamos Forró primeiro
-                const query = isInitial ? "tag=forro" : "country=brazil";
-                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${query}&limit=50&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
+                // Carregamento Global (Mundo) via Radio Browser
+                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?limit=60&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
                 const data = await response.json();
                 
                 if(isInitial) {
-                    // Adiciona a Trapiá no topo da lista
-                    const combined = [trapiaAM, ...data];
-                    renderCarousels(combined.slice(0, 15));
-                    addToGrid(combined.slice(15));
+                    // Prioridade Forró no topo e Trapiá
+                    const forroOnly = data.filter(r => r.tags.toLowerCase().includes('forro') || r.name.toLowerCase().includes('forro'));
+                    const remaining = data.filter(r => !forroOnly.includes(r));
+                    
+                    const listForro = [trapiaAM, ...forroOnly, ...remaining].slice(0, 20);
+                    renderCarousels(listForro);
+                    addToGrid(remaining.slice(20));
                 } else {
                     addToGrid(data);
                 }
                 
                 radioData = [...radioData, ...data];
-                offset += 50;
-            } catch (err) { console.error(err); }
+                offset += 60;
+            } catch (err) { console.error("Erro ao carregar:", err); }
             finally { isFetching = false; }
         }
 
@@ -158,10 +168,13 @@
             carouselsArea.innerHTML = '';
             const frag = document.createDocumentFragment();
             createCarousel("Prioridade Forró & Trapiá", data, frag);
+            // Vários carrosséis simulando diferentes ângulos/categorias
+            createCarousel("Rádios do Mundo", radioData.slice(0, 15), frag); 
             carouselsArea.appendChild(frag);
         }
 
         function createCarousel(title, list, container) {
+            if(list.length === 0) return;
             const section = document.createElement('div');
             section.className = 'section-container';
             section.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
@@ -178,12 +191,7 @@
 
         function createCard(radio) {
             const isFav = favorites.some(f => f.stationuuid === radio.stationuuid);
-            
-            // Lógica AM/FM
-            let type = "FM";
-            if (radio.name.toLowerCase().includes("am") || (radio.tags && radio.tags.toLowerCase().includes("am"))) {
-                type = "AM";
-            }
+            let type = radio.name.toLowerCase().includes("am") ? "AM" : "FM";
 
             const el = document.createElement('div');
             el.className = 'card';
@@ -193,10 +201,44 @@
                 <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
                     <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                 </div>
-                <img class="card-img" src="${radio.favicon || 'https://via.placeholder.com/140/2c2c2e/fff?text=Radio'}" loading="lazy">
+                <img class="card-img" src="${radio.favicon || 'https://via.placeholder.com/140/2c2c2e/fff?text=Radio'}" loading="lazy" onerror="this.src='https://via.placeholder.com/140/2c2c2e/fff?text=R%C3%A1dio'">
                 <div class="card-info">${radio.name}</div>
             `;
             return el;
+        }
+
+        function toggleFav(e, uuid) {
+            e.stopPropagation();
+            const idx = favorites.findIndex(f => f.stationuuid === uuid);
+            if(idx > -1) {
+                favorites.splice(idx, 1);
+            } else {
+                const radio = radioData.find(r => r.stationuuid === uuid) || trapiaAM;
+                favorites.push(radio);
+            }
+            localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
+            updateBadge();
+            // Atualiza visual do botão
+            e.currentTarget.classList.toggle('active');
+        }
+
+        function updateBadge() {
+            badge.innerText = favorites.length;
+            badge.style.display = favorites.length > 0 ? 'flex' : 'none';
+        }
+
+        function changeTab(mode, btn) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if(mode === 'lib') {
+                masterGrid.innerHTML = '';
+                carouselsArea.style.display = 'none';
+                document.getElementById('section-grid-title').innerText = "Minha Biblioteca";
+                favorites.forEach(f => masterGrid.appendChild(createCard(f)));
+            } else {
+                location.reload(); 
+            }
         }
 
         function openRadio(radio) {
@@ -212,36 +254,6 @@
             }
         }
 
-        function toggleFav(e, uuid) {
-            e.stopPropagation();
-            const btn = e.currentTarget;
-            const idx = favorites.findIndex(f => f.stationuuid === uuid);
-            if(idx > -1) {
-                favorites.splice(idx, 1);
-                btn.classList.remove('active');
-            } else {
-                const radio = radioData.find(r => r.stationuuid === uuid) || trapiaAM;
-                favorites.push(radio);
-                btn.classList.add('active');
-            }
-            localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
-        }
-
-        function changeTab(mode, btn) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('player-view').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            
-            if(mode === 'lib') {
-                masterGrid.innerHTML = '';
-                carouselsArea.style.display = 'none';
-                favorites.forEach(f => masterGrid.appendChild(createCard(f)));
-            } else {
-                location.reload(); // Recarrega para voltar ao Início/Forró
-            }
-        }
-
         function togglePlayback() {
             if(!audio.src) return;
             if(audio.paused) { audio.play(); updateIcon(true); }
@@ -253,13 +265,13 @@
         }
 
         window.onscroll = () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
                 loadRadios();
             }
         };
 
-        // Início
         loadRadios(true);
+        updateBadge();
     </script>
 </body>
 </html>

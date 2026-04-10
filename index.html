@@ -16,7 +16,22 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; overflow-x: hidden; width: 100vw; }
 
-        header { padding: 50px 20px 10px; font-size: 32px; font-weight: 800; background: var(--bg); position: sticky; top: 0; z-index: 100; }
+        header { padding: 50px 20px 10px; font-size: 32px; font-weight: 800; background: var(--bg); position: sticky; top: 0; z-index: 110; }
+
+        /* --- AJUSTE EXCLUSIVO PARA O CARROSSEL FIXO (MAIS OUVIDAS) --- */
+        .section-mais-ouvidas { 
+            position: sticky; 
+            top: 92px; /* Fica logo abaixo do header */
+            z-index: 105; 
+            background: var(--bg); 
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        /* Capas menores apenas neste carrossel */
+        .section-mais-ouvidas .card { width: 100px; min-width: 100px; }
+        .section-mais-ouvidas .card-img { width: 100px; height: 100px; }
+        /* ------------------------------------------------------------ */
 
         .search-container { padding: 10px 20px; position: sticky; top: 100px; z-index: 101; background: var(--bg); }
         .search-input { 
@@ -52,7 +67,7 @@
         .fav-btn svg { width: 18px; fill: #666; }
         .fav-btn.active svg { fill: var(--yellow); }
 
-        .grid-wrapper { width: 100vw; padding: 0 20px 120px; display: block; }
+        .grid-wrapper { width: 100vw; padding: 0 20px 120px; display: block; position: relative; z-index: 1; }
         .multi-direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
 
         #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 800; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
@@ -66,7 +81,6 @@
         .nav-item.active svg { fill: var(--apple-red); }
         #badge-favs { position: absolute; top: -6px; right: 20%; background: var(--yellow); color: #000; font-size: 10px; font-weight: 900; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; padding: 0 4px; }
         
-        /* MINIATURA NO BOTÃO CENTRAL */
         .dock-play-btn { width: 58px; height: 58px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); position: relative; overflow: hidden; }
         #dock-thumb { position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
         #play-icon { z-index: 2; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
@@ -140,7 +154,7 @@
         let offset = 0;
         let isFetching = false;
         let currentTab = 'home';
-        let currentRadio = null; // Armazena a rádio que está tocando agora
+        let currentRadio = null;
 
         const placeholder = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
@@ -163,8 +177,9 @@
         function renderHome(data) {
             carouselsArea.innerHTML = '';
             const frag = document.createDocumentFragment();
-            createCarousel("Mais Ouvidas", data.slice(0, 15), frag);
-            createCarousel("Destaques", data.slice(15, 30), frag);
+            // Adicionamos um identificador único para o primeiro carrossel
+            createCarousel("Mais Ouvidas", data.slice(0, 15), frag, true); 
+            createCarousel("Destaques", data.slice(15, 30), frag, false);
             carouselsArea.appendChild(frag);
             addToGrid(data.slice(30));
         }
@@ -175,9 +190,10 @@
             masterGrid.appendChild(frag);
         }
 
-        function createCarousel(title, list, container) {
+        function createCarousel(title, list, container, isMaisOuvidas) {
             const section = document.createElement('div');
-            section.className = 'section-container';
+            // Se for Mais Ouvidas, aplica a classe especial de fixação e tamanho menor
+            section.className = isMaisOuvidas ? 'section-container section-mais-ouvidas' : 'section-container';
             section.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
             const scroll = section.querySelector('.horizontal-scroll');
             list.forEach(r => scroll.appendChild(createCard(r)));
@@ -203,13 +219,10 @@
             currentTab = mode;
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(btn) btn.classList.add('active');
-            
             document.getElementById('player-view').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
-            
             const searchArea = document.getElementById('search-bar-area');
             const gridTitle = document.getElementById('section-grid-title');
-
             if(mode === 'home') {
                 document.getElementById('page-title').innerText = "Rádios";
                 searchArea.style.display = 'none';
@@ -247,58 +260,34 @@
         }
 
         function openRadioDetails(radio) {
-            currentRadio = radio; // Guarda a rádio ativa
+            currentRadio = radio;
             const art = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
-            
-            // Atualiza tela de detalhes
             document.getElementById('p-art').src = art;
             document.getElementById('p-name').innerText = radio.name;
             document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
             document.getElementById('player-view').style.display = 'flex';
             document.getElementById('main-content').style.display = 'none';
-            
-            // Atualiza miniatura no Dock
             dockThumb.src = art;
             dockThumb.style.display = 'block';
-
-            // Inteligência para a tela de bloqueio do iPhone
             updateMediaSession(radio);
-
-            if(audio.src !== radio.url_resolved) { 
-                audio.src = radio.url_resolved; 
-                audio.play(); 
-                updateIcon(true); 
-            }
+            if(audio.src !== radio.url_resolved) { audio.src = radio.url_resolved; audio.play(); updateIcon(true); }
         }
 
-        // Função para mandar capinha e nome para a tela de bloqueio do iPhone
         function updateMediaSession(radio) {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: radio.name,
-                    artist: 'Lamoniê Flow - Premium',
-                    album: radio.state || radio.country,
-                    artwork: [
-                        { src: radio.favicon || '', sizes: '512x512', type: 'image/png' }
-                    ]
+                    title: radio.name, artist: 'Lamoniê Flow - Premium', album: radio.state || radio.country,
+                    artwork: [{ src: radio.favicon || '', sizes: '512x512', type: 'image/png' }]
                 });
-
-                // Permite controlar play/pause pela tela de bloqueio
                 navigator.mediaSession.setActionHandler('play', () => { audio.play(); updateIcon(true); });
                 navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); updateIcon(false); });
             }
         }
 
-        // Função do botão central: se tocar na capinha volta pra rádio, se tocar no ícone pausa
         function handleDockPlayClick() {
             if(!currentRadio) return;
-            
-            // Se o usuário clicar na capinha pequena e o player estiver fechado, abre ele
-            if(document.getElementById('player-view').style.display === 'none') {
-                openRadioDetails(currentRadio);
-            } else {
-                togglePlayback();
-            }
+            if(document.getElementById('player-view').style.display === 'none') openRadioDetails(currentRadio);
+            else togglePlayback();
         }
 
         function toggleFav(e, uuid) {
@@ -323,9 +312,7 @@
             else { audio.pause(); updateIcon(false); }
         }
 
-        function updateIcon(p) { 
-            document.getElementById('play-icon').setAttribute('d', p ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"); 
-        }
+        function updateIcon(p) { document.getElementById('play-icon').setAttribute('d', p ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"); }
 
         window.onscroll = () => {
             if (currentTab === 'home' && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) loadRadios();

@@ -3,180 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lamonie Radio PRO</title>
+    <title>Lamoniê Flow - Premium</title>
     <style>
-        :root { --bg: #000; --accent: #ff2d55; --glass: rgba(25, 25, 25, 0.9); --border: 0.5px solid #333; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, sans-serif; }
-        body { background: var(--bg); color: white; padding-bottom: 150px; }
+        :root { 
+            --bg: #000; 
+            --glass: rgba(28, 28, 30, 0.7); 
+            --accent: #ff2d55; 
+            --blur: blur(20px);
+        }
+        
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: var(--bg); color: white; overflow-x: hidden; padding-bottom: 120px; }
 
-        /* HEADER E BUSCA */
-        header { padding: 50px 20px 10px; }
-        #search-box { 
-            margin: 10px 20px; display: none;
-            background: #1c1c1e; border: var(--border);
-            padding: 12px; border-radius: 12px; width: calc(100% - 40px);
-            color: white; font-size: 16px;
+        /* HEADER */
+        header { padding: 60px 20px 20px; font-size: 28px; font-weight: 800; }
+
+        /* GRID DE RÁDIOS (2 POR LINHA COMO VOCÊ PEDIU) */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 20px;
         }
 
-        /* GRID DE RÁDIOS */
-        .section-header { padding: 20px; color: #007AFF; font-weight: 700; text-transform: uppercase; font-size: 13px; }
-        .carousel { display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 20px; scroll-behavior: smooth; }
-        .carousel::-webkit-scrollbar { display: none; }
-
-        .radio-card { min-width: 140px; position: relative; }
-        .thumb { width: 140px; height: 140px; border-radius: 15px; background: #1a1a1a; overflow: hidden; border: var(--border); }
-        .thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .fav-star { 
-            position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6);
-            width: 30px; height: 30px; border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; font-size: 18px; z-index: 5;
+        .card {
+            background: #1c1c1e;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 0.5px solid #333;
+        }
+        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+        .card-info { padding: 10px; text-align: center; font-size: 13px; font-weight: 600; }
+        
+        .fav-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(0,0,0,0.5); width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px); z-index: 10;
         }
 
-        /* TELA DE DETALHES (PÁGINA QUE ABRE AO CLICAR) */
-        #details-page {
+        /* TELA DE DETALHES (DESCRITIVO) */
+        #details-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 5000; display: none;
-            flex-direction: column; align-items: center; padding: 60px 30px;
+            background: var(--bg); z-index: 9999; display: none;
+            flex-direction: column; align-items: center; padding-top: 80px;
         }
-        .big-thumb { width: 280px; height: 280px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .details-info { text-align: center; margin-top: 30px; width: 100%; }
-        .details-info h2 { font-size: 24px; margin-bottom: 5px; }
-        .details-info p { color: #888; margin-bottom: 40px; }
+        .details-img { width: 80%; aspect-ratio: 1/1; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin-bottom: 30px; }
+        .details-meta { text-align: center; padding: 0 40px; }
+        .details-meta h2 { font-size: 24px; margin-bottom: 10px; }
+        .details-meta p { color: #888; font-size: 14px; line-height: 1.5; }
 
-        /* CONTROLES NA PÁGINA DE DETALHES */
-        .page-controls { display: flex; align-items: center; gap: 40px; font-size: 45px; }
-
-        /* BARRA INFERIOR (TAB BAR) */
-        .tab-bar-container {
-            position: fixed; bottom: 25px; left: 0; width: 100%;
-            display: flex; justify-content: center; gap: 10px; padding: 0 15px; z-index: 4000;
+        /* CONTROLES ESTILO APPLE NA TELA DE RÁDIO */
+        .player-controls-large {
+            margin-top: 50px; display: flex; align-items: center; gap: 50px;
         }
-        .main-nav { 
-            background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border-radius: 35px; border: var(--border); height: 65px; flex: 1;
+        .play-big { font-size: 60px; color: white; cursor: pointer; }
+
+        /* A BARRA QUE VOCÊ GOSTA (VOLTANDO AO PADRÃO) */
+        .premium-tab-bar {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; height: 70px;
+            background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            border-radius: 40px; border: 0.5px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: space-around;
+            z-index: 10000;
         }
-        .nav-item { text-align: center; font-size: 10px; color: #888; cursor: pointer; }
-        .nav-item.active { color: var(--accent); }
-        .search-circle { 
-            width: 65px; height: 65px; background: var(--glass); 
-            border-radius: 50%; border: var(--border); display: flex;
-            align-items: center; justify-content: center; font-size: 24px;
+        .tab-item { text-align: center; color: #888; font-size: 11px; font-weight: 500; transition: 0.3s; }
+        .tab-item.active { color: white; }
+        .tab-item i { display: block; font-size: 24px; margin-bottom: 4px; }
+        
+        .search-btn-circle {
+            width: 55px; height: 55px; background: rgba(255,255,255,0.1);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: white;
+        }
+
+        /* BUSCA */
+        #search-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 11000; display: none; padding: 100px 20px;
+        }
+        .search-input {
+            width: 100%; background: #2c2c2e; border: none; padding: 15px 20px;
+            border-radius: 15px; color: white; font-size: 18px;
         }
     </style>
 </head>
 <body>
 
-    <header id="header-main"><h1>Rádios</h1></header>
-    <input type="text" id="search-box" placeholder="Buscar rádio no Brasil..." oninput="app.search(this.value)">
+    <header id="main-title">Rádios</header>
 
-    <div id="main-content">
-        <div class="section-header">Rádios do Brasil</div>
-        <div id="grid-brasil" class="carousel"></div>
-        
-        <div class="section-header">Sua Biblioteca</div>
-        <div id="grid-favs" class="carousel"></div>
+    <div id="home-view">
+        <div class="grid-container" id="radio-grid">
+            </div>
     </div>
 
-    <div id="details-page">
-        <div onclick="app.closeDetails()" style="position:absolute; top:20px; left:20px; font-size:20px;">✕ Fechar</div>
-        <img id="det-img" class="big-thumb">
-        <div class="details-info">
+    <div id="details-screen">
+        <div onclick="closeDetails()" style="position:absolute; top:40px; left:25px; font-size:18px; font-weight:600;">✕ Fechar</div>
+        <img id="det-img" class="details-img" src="">
+        <div class="details-meta">
             <h2 id="det-title">Nome da Rádio</h2>
-            <p id="det-desc">Descrição da rádio...</p>
-            <div class="page-controls">
-                <span onclick="app.toggle()">⏯️</span>
-            </div>
+            <p id="det-desc">Carregando informações da rádio ao vivo do Brasil...</p>
+        </div>
+        
+        <div class="player-controls-large">
+            <div class="play-big" id="main-play-btn" onclick="togglePlay()">▶️</div>
         </div>
     </div>
 
-    <div class="tab-bar-container">
-        <nav class="main-nav">
-            <div class="nav-item active" onclick="app.showHome()"><div>🏠</div>Início</div>
-            <div class="nav-item" onclick="app.showFavs()"><div>📋</div>Biblioteca</div>
-        </nav>
-        <div class="search-circle" onclick="app.toggleSearch()">🔍</div>
+    <div id="search-overlay">
+        <input type="text" class="search-input" placeholder="Qual rádio vamos ouvir?" oninput="filterRadios(this.value)">
+        <div onclick="toggleSearch()" style="text-align:center; margin-top:30px; color:#888;">Cancelar</div>
     </div>
 
-    <audio id="player"></audio>
+    <div class="premium-tab-bar">
+        <div class="tab-item active" onclick="showHome()"><i>🏠</i>Início</div>
+        <div class="tab-item" onclick="scrollToLibrary()"><i>📋</i>Biblioteca</div>
+        <div class="search-btn-circle" onclick="toggleSearch()">🔍</div>
+    </div>
+
+    <audio id="audio-player"></audio>
 
     <script>
-        const app = {
-            db: JSON.parse(localStorage.getItem('favs_bibiu')) || [],
-            allRadios: [],
-            
-            init: async () => {
-                const res = await fetch('https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=100&hidebroken=true&order=clickcount&reverse=true');
-                app.allRadios = await res.json();
-                app.render(app.allRadios, 'grid-brasil');
-                app.renderFavs();
-            },
+        let allRadios = [];
+        let favorites = JSON.parse(localStorage.getItem('bibiu_favs')) || [];
+        const player = document.getElementById('audio-player');
 
-            render: (list, containerId) => {
-                const cont = document.getElementById(containerId);
-                cont.innerHTML = '';
-                list.forEach(r => {
-                    const isFav = app.db.find(f => f.changeuuid === r.changeuuid);
-                    const div = document.createElement('div');
-                    div.className = 'radio-card';
-                    div.innerHTML = `
-                        <div class="fav-star" onclick="event.stopPropagation(); app.toggleFav('${r.changeuuid}')">${isFav?'⭐':'☆'}</div>
-                        <div class="thumb" onclick="app.openDetails('${r.changeuuid}')">
-                            <img src="${r.favicon || 'https://via.placeholder.com/150/1c1c1e/orange?text=RADIO'}">
+        async function loadRadios() {
+            try {
+                const res = await fetch('https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=80&hidebroken=true&order=clickcount&reverse=true');
+                allRadios = await res.json();
+                renderGrid(allRadios);
+            } catch (e) { console.error("Erro ao carregar"); }
+        }
+
+        function renderGrid(list) {
+            const grid = document.getElementById('radio-grid');
+            grid.innerHTML = '';
+            list.forEach(radio => {
+                const isFav = favorites.some(f => f.changeuuid === radio.changeuuid);
+                grid.innerHTML += `
+                    <div class="card" onclick="openRadio('${radio.changeuuid}')">
+                        <div class="fav-btn" onclick="event.stopPropagation(); toggleFav('${radio.changeuuid}')">
+                            ${isFav ? '⭐' : '☆'}
                         </div>
-                        <div style="font-size:12px; margin-top:5px; font-weight:600; text-align:center">${r.name}</div>
-                    `;
-                    cont.appendChild(div);
-                });
-            },
+                        <img src="${radio.favicon || 'https://via.placeholder.com/200/1c1c1e/white?text=Radio'}">
+                        <div class="card-info">${radio.name}</div>
+                    </div>
+                `;
+            });
+        }
 
-            openDetails: (id) => {
-                const r = app.allRadios.find(x => x.changeuuid === id) || app.db.find(x => x.changeuuid === id);
-                document.getElementById('det-img').src = r.favicon || '';
-                document.getElementById('det-title').innerText = r.name;
-                document.getElementById('det-desc').innerText = `Local: ${r.state || 'Brasil'} | Bitrate: ${r.bitrate}kbps`;
-                document.getElementById('player').src = r.url_resolved;
-                document.getElementById('player').play();
-                document.getElementById('details-page').style.display = 'flex';
-            },
+        function openRadio(id) {
+            const radio = allRadios.find(r => r.changeuuid === id);
+            document.getElementById('det-img').src = radio.favicon || '';
+            document.getElementById('det-title').innerText = radio.name;
+            document.getElementById('det-desc').innerText = `Tocando agora: ${radio.state || 'Brasil'} | Qualidade: ${radio.bitrate}kbps`;
+            player.src = radio.url_resolved;
+            player.play();
+            document.getElementById('main-play-btn').innerText = '⏸️';
+            document.getElementById('details-screen').style.display = 'flex';
+        }
 
-            closeDetails: () => document.getElementById('details-page').style.display = 'none',
-            
-            toggle: () => {
-                const p = document.getElementById('player');
-                p.paused ? p.play() : p.pause();
-            },
+        function togglePlay() {
+            if(player.paused) {
+                player.play();
+                document.getElementById('main-play-btn').innerText = '⏸️';
+            } else {
+                player.pause();
+                document.getElementById('main-play-btn').innerText = '▶️';
+            }
+        }
 
-            toggleFav: (id) => {
-                const radio = app.allRadios.find(x => x.changeuuid === id) || app.db.find(x => x.changeuuid === id);
-                const idx = app.db.findIndex(x => x.changeuuid === id);
-                if(idx > -1) app.db.splice(idx, 1);
-                else app.db.push(radio);
-                localStorage.setItem('favs_bibiu', JSON.stringify(app.db));
-                app.render(app.allRadios, 'grid-brasil');
-                app.renderFavs();
-            },
+        function closeDetails() {
+            document.getElementById('details-screen').style.display = 'none';
+        }
 
-            renderFavs: () => app.render(app.db, 'grid-favs'),
+        function toggleFav(id) {
+            const radio = allRadios.find(r => r.changeuuid === id);
+            const index = favorites.findIndex(f => f.changeuuid === id);
+            if(index > -1) favorites.splice(index, 1);
+            else favorites.push(radio);
+            localStorage.setItem('bibiu_favs', JSON.stringify(favorites));
+            renderGrid(allRadios);
+        }
 
-            toggleSearch: () => {
-                const s = document.getElementById('search-box');
-                s.style.display = s.style.display === 'block' ? 'none' : 'block';
-                s.focus();
-            },
+        function toggleSearch() {
+            const s = document.getElementById('search-overlay');
+            s.style.display = s.style.display === 'flex' ? 'none' : 'flex';
+        }
 
-            search: (val) => {
-                const filtered = app.allRadios.filter(r => r.name.toLowerCase().includes(val.toLowerCase()));
-                app.render(filtered, 'grid-brasil');
-            },
+        function filterRadios(val) {
+            const filtered = allRadios.filter(r => r.name.toLowerCase().includes(val.toLowerCase()));
+            renderGrid(filtered);
+        }
 
-            showFavs: () => {
-                window.scrollTo({top: document.getElementById('grid-favs').offsetTop - 100, behavior: 'smooth'});
-            },
+        function showHome() {
+            closeDetails();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
 
-            showHome: () => window.scrollTo({top: 0, behavior: 'smooth'})
-        };
-        app.init();
+        function scrollToLibrary() {
+            // Lógica para filtrar apenas os favoritos no grid
+            renderGrid(favorites);
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            document.getElementById('main-title').innerText = "Biblioteca";
+        }
+
+        loadRadios();
     </script>
 </body>
 </html>

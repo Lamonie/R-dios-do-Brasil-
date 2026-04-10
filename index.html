@@ -7,51 +7,30 @@
     <style>
         :root {
             --bg: #000000;
-            --card-bg: #121212;
-            --accent: #007AFF;     /* Azul iOS */
-            --text: #ffffff;
-            --text-secondary: #aaaaaa;
+            --accent: #007AFF;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            padding-bottom: 90px;
-            overflow-x: hidden;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: var(--bg); color: white; padding-bottom: 90px; }
 
         header {
-            padding: 50px 20px 15px;
+            padding: 50px 20px 20px;
             text-align: center;
-            background: rgba(0,0,0,0.95);
             position: sticky;
             top: 0;
+            background: rgba(0,0,0,0.95);
             z-index: 100;
         }
+        header h1 { font-size: 28px; font-weight: 700; }
 
-        header h1 {
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .section {
-            margin-bottom: 35px;
-        }
-
+        .section { margin-bottom: 35px; }
         .section-header {
             padding: 0 20px 12px;
             color: var(--accent);
             font-size: 15px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
 
         .carousel {
@@ -62,199 +41,98 @@
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
         }
-
-        .carousel::-webkit-scrollbar {
-            display: none;
-        }
+        .carousel::-webkit-scrollbar { display: none; }
 
         .radio-card {
-            min-width: 118px;
-            max-width: 118px;
-            text-align: center;
+            min-width: 130px;
             cursor: pointer;
+            text-align: center;
         }
 
         .thumb {
-            width: 118px;
-            height: 118px;
-            background: #1a1a1a;
-            border-radius: 18px;
+            width: 130px;
+            height: 130px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            background: #1a1a1a;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
             margin-bottom: 10px;
         }
-
-        .thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; }
 
         .radio-name {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 600;
             line-height: 1.3;
-            color: white;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
-
-        .radio-freq {
+        .radio-info {
             font-size: 11.5px;
-            color: var(--text-secondary);
+            color: #aaaaaa;
         }
 
         /* Modal */
         #details-modal {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.96);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.96); z-index: 2000;
+            display: none; align-items: center; justify-content: center; padding: 20px;
         }
-
         .modal-content {
-            background: #111;
-            border-radius: 28px;
-            width: 100%;
-            max-width: 380px;
-            padding: 30px 25px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            background: #111; border-radius: 28px; width: 100%; max-width: 380px;
+            padding: 30px 25px; text-align: center;
         }
-
-        .big-img {
-            width: 180px;
-            height: 180px;
-            border-radius: 24px;
-            margin: 0 auto 20px;
-            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
-        }
-
-        .modal-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .modal-loc {
-            color: var(--accent);
-            font-size: 15px;
-            margin-bottom: 20px;
-        }
+        .big-img { width: 190px; height: 190px; border-radius: 24px; margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(0,122,255,0.3); }
+        .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+        .modal-loc { color: var(--accent); font-size: 15px; margin-bottom: 20px; }
 
         .player-bar {
-            background: #1a1a1a;
-            border-radius: 18px;
-            padding: 16px 20px;
-            margin: 25px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: #1a1a1a; border-radius: 18px; padding: 16px 20px;
+            margin: 25px 0; display: flex; align-items: center; justify-content: space-between;
         }
 
-        .btn-row {
-            display: flex;
-            gap: 12px;
-        }
-
+        .btn-row { display: flex; gap: 12px; }
         .btn {
-            flex: 1;
-            padding: 16px;
-            border-radius: 16px;
-            font-weight: 600;
-            font-size: 15px;
-            border: none;
-            cursor: pointer;
+            flex: 1; padding: 16px; border-radius: 16px; font-weight: 600; font-size: 15px; border: none; cursor: pointer;
         }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-secondary { background: #222; color: white; border: 1px solid #333; }
 
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #222;
-            color: white;
-            border: 1px solid #333;
-        }
-
-        /* Tab Bar Moderna */
         .tab-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 85px;
-            background: rgba(0,0,0,0.95);
-            border-top: 0.5px solid #222;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-            padding-bottom: 8px;
+            position: fixed; bottom: 0; left: 0; right: 0; height: 85px;
+            background: rgba(0,0,0,0.95); border-top: 0.5px solid #222;
+            display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: 8px;
         }
-
-        .tab-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #888;
-            font-size: 10px;
-            gap: 4px;
-        }
-
-        .tab-item.active {
-            color: var(--accent);
-        }
-
-        .tab-item div {
-            font-size: 24px;
-        }
+        .tab-item { display: flex; flex-direction: column; align-items: center; color: #888; font-size: 10px; gap: 4px; }
+        .tab-item.active { color: var(--accent); }
+        .tab-item div { font-size: 24px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Rádios</h1>
-    </header>
-
-    <!-- Seções conforme os prints -->
-    <div class="section">
-        <div class="section-header">TOP 15</div>
-        <div id="top-carousel" class="carousel"></div>
-    </div>
+    <header><h1>Rádios</h1></header>
 
     <div class="section">
-        <div class="section-header">MPB Sugeridas</div>
-        <div id="mpb-carousel" class="carousel"></div>
-    </div>
-
-    <div class="section">
-        <div class="section-header">POP-ROCK Sugeridas</div>
+        <div class="section-header">POP-ROCK SUGERIDAS</div>
         <div id="poprock-carousel" class="carousel"></div>
     </div>
 
     <div class="section">
-        <div class="section-header">ROCK Sugeridas</div>
+        <div class="section-header">ROCK SUGERIDAS</div>
         <div id="rock-carousel" class="carousel"></div>
     </div>
 
     <div class="section">
-        <div class="section-header">SERTANEJO Sugeridas</div>
+        <div class="section-header">SERTANEJO SUGERIDAS</div>
         <div id="sertanejo-carousel" class="carousel"></div>
     </div>
 
-    <!-- Modal de detalhes -->
+    <!-- Modal -->
     <div id="details-modal">
         <div class="modal-content">
             <img id="m-img" src="" class="big-img">
             <h2 id="m-title" class="modal-title"></h2>
             <p id="m-loc" class="modal-loc"></p>
-            <p id="m-desc" style="color:#999; font-size:14px; line-height:1.4; margin-bottom:25px;"></p>
+            <p id="m-desc" style="color:#999; font-size:14px; line-height:1.4; margin:20px 0;"></p>
 
             <div class="player-bar">
                 <span id="status">Pronto para tocar</span>
@@ -286,12 +164,10 @@
 
             fetchRadios: async (params, containerId) => {
                 try {
-                    const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${params}&limit=20&hidebroken=true&order=clickcount&reverse=true`);
+                    const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${params}&limit=10&hidebroken=true&order=clickcount&reverse=true`);
                     const data = await response.json();
                     app.renderRadios(data, containerId);
-                } catch (e) {
-                    console.error("Erro ao buscar rádios:", e);
-                }
+                } catch (e) { console.error(e); }
             },
 
             renderRadios: (data, containerId) => {
@@ -303,14 +179,14 @@
                     card.className = 'radio-card';
                     card.onclick = () => app.openDetails(radio);
 
-                    const logo = radio.favicon || 'https://via.placeholder.com/120?text=RADIO';
+                    const logo = radio.favicon || 'https://via.placeholder.com/130?text=RADIO';
 
                     card.innerHTML = `
-                        <div class="thumb">
-                            <img src="${logo}" alt="${radio.name}">
-                        </div>
+                        <div class="thumb"><img src="${logo}" alt="${radio.name}"></div>
                         <div class="radio-name">${radio.name}</div>
-                        <div class="radio-freq">${radio.state ? radio.state + ' - ' : ''}${radio.country || ''}</div>
+                        <div class="radio-info">
+                            ${radio.state ? radio.state + ' - ' : ''}${radio.country || 'Brasil'}
+                        </div>
                     `;
                     container.appendChild(card);
                 });
@@ -318,24 +194,23 @@
 
             openDetails: (radio) => {
                 app.currentStream = radio.url_resolved || radio.url;
-                document.getElementById('m-img').src = radio.favicon || 'https://via.placeholder.com/180?text=RADIO';
+                document.getElementById('m-img').src = radio.favicon || 'https://via.placeholder.com/190?text=RADIO';
                 document.getElementById('m-title').innerText = radio.name;
-                document.getElementById('m-loc').innerText = `${radio.state || ''} ${radio.country ? '- ' + radio.country : ''}`;
-                document.getElementById('m-desc').innerText = `Bitrate: ${radio.bitrate}kbps | Tags: ${radio.tags || 'Não informado'}`;
+                document.getElementById('m-loc').innerText = `${radio.state || ''} ${radio.country ? '- ' + radio.country : 'Brasil'}`;
+                document.getElementById('m-desc').innerText = `Bitrate: ${radio.bitrate || '?'}kbps | Tags: ${radio.tags || 'Não informado'}`;
 
                 document.getElementById('details-modal').style.display = 'flex';
                 document.getElementById('status').innerText = "Pausado";
 
-                app.memory.push(radio);
+                if (!app.memory.some(r => r.stationuuid === radio.stationuuid)) {
+                    app.memory.push(radio);
+                }
             },
 
             togglePlay: () => {
                 const player = document.getElementById('audio-player');
                 const status = document.getElementById('status');
-
-                if (player.src !== app.currentStream) {
-                    player.src = app.currentStream;
-                }
+                if (player.src !== app.currentStream) player.src = app.currentStream;
 
                 if (player.paused) {
                     player.play();
@@ -361,12 +236,8 @@
             },
 
             init: () => {
-                // Top 15 (Brasil)
-                app.fetchRadios("country=Brazil", "top-carousel");
-
-                // MPB / Pop etc (você pode ajustar os parâmetros)
-                app.fetchRadios("country=Brazil&tag=mpb", "mpb-carousel");
-                app.fetchRadios("country=Brazil&tag=rock", "poprock-carousel");
+                // Parâmetros diferentes para evitar repetição
+                app.fetchRadios("country=Brazil&tag=pop,rock", "poprock-carousel");
                 app.fetchRadios("country=Brazil&tag=rock", "rock-carousel");
                 app.fetchRadios("country=Brazil&tag=sertanejo", "sertanejo-carousel");
             }

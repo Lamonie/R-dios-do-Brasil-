@@ -16,83 +16,46 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; overflow-x: hidden; width: 100vw; }
 
-        /* HEADER FIXO */
         header { padding: 50px 20px 10px; font-size: 32px; font-weight: 800; background: var(--bg); position: sticky; top: 0; z-index: 100; }
 
-        /* SEÇÕES DE CARROSSEL - CORREÇÃO DO LAYOUT */
+        .search-container { padding: 10px 20px; position: sticky; top: 100px; z-index: 101; background: var(--bg); }
+        .search-input { 
+            width: 100%; padding: 12px 15px; border-radius: 12px; border: none; 
+            background: #1c1c1e; color: white; font-size: 16px; outline: none;
+            border: 1px solid var(--glass-border);
+        }
+        .search-msg { text-align: center; padding: 40px 20px; color: #666; font-weight: 600; }
+
         .section-container { margin-bottom: 25px; width: 100%; }
         .section-title { padding: 0 20px 10px; font-size: 18px; font-weight: 700; color: #fff; }
         
         .horizontal-scroll { 
-            display: flex; 
-            overflow-x: auto; 
-            overflow-y: hidden;
-            gap: 15px; 
-            padding: 0 20px 10px; /* Padding inferior para o scroll não cortar o card */
-            scrollbar-width: none; 
-            -ms-overflow-style: none;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch; /* Scroll suave no iPhone */
+            display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px; 
+            scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
-        /* CARDS QUADRADOS - CORRIGIDO PARA NÃO SEREM BARRAS FINAS */
         .card { 
-            width: 140px; /* Tamanho fixo ideal para mobile */
-            min-width: 140px; /* Impede que vire barra fina */
-            background: #1c1c1e; 
-            border-radius: 14px; 
-            overflow: hidden; 
-            border: 0.5px solid #333; 
-            position: relative; 
-            flex-shrink: 0; /* IMPEDIR QUE O FLEX ESMAGUE O CARD */
-            transition: transform 0.2s ease;
+            width: 140px; min-width: 140px; background: #1c1c1e; border-radius: 14px; 
+            overflow: hidden; border: 0.5px solid #333; position: relative; flex-shrink: 0;
         }
+        .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; background: #2c2c2e; }
+        .card-info { padding: 10px 8px; font-size: 12px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .card:active { transform: scale(0.96); }
-
-        .card-img { 
-            width: 100%; 
-            aspect-ratio: 1/1; 
-            object-fit: cover; /* Imagem preenche o quadrado sem distorcer */
-            display: block; 
-            background: #2c2c2e; 
-        }
-        
-        .card-info { 
-            padding: 10px 8px; 
-            font-size: 12px; 
-            font-weight: 600; 
-            text-align: center; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            color: #eee;
-        }
-        
-        /* ESTRELA DE FAVORITOS */
         .fav-btn {
             position: absolute; top: 6px; right: 6px; width: 30px; height: 30px;
             background: rgba(0,0,0,0.6); border-radius: 50%; display: flex;
             align-items: center; justify-content: center; z-index: 10;
-            backdrop-filter: blur(5px);
         }
         .fav-btn svg { width: 18px; fill: #666; }
         .fav-btn.active svg { fill: var(--yellow); }
 
-        /* GRID EXPLORAR (MANTIDO) */
         .grid-wrapper { width: 100vw; overflow: auto; padding: 20px; display: none; }
-        .multi-direction-grid {
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-            gap: 15px;
-        }
+        .multi-direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
 
-        /* DOCK E PLAYER PRESERVADOS */
         #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 800; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .player-art { width: 85%; max-width: 320px; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin-bottom: 40px; }
-        .player-meta h2 { font-size: 24px; margin-bottom: 8px; }
-        .player-meta p { color: #888; font-size: 16px; }
 
         .apple-dock { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; height: 75px; z-index: 1000; background: var(--glass); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border-radius: 38px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-around; }
         .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #8e8e93; position: relative; }
@@ -105,12 +68,18 @@
         #loading-trigger { height: 100px; display: flex; align-items: center; justify-content: center; color: var(--apple-red); font-weight: bold; }
     </style>
 </head>
-<body class="real-mode">
+<body>
 
     <div id="main-content">
         <header id="page-title">Rádios</header>
+        
+        <div id="search-bar-area" class="search-container" style="display: none;">
+            <input type="text" id="input-busca" class="search-input" placeholder="Nome, cidade, país ou tag..." oninput="executarBusca()">
+        </div>
+
         <div id="carousels-area"></div>
         <div id="grid-area" class="grid-wrapper">
+            <div id="search-msg" class="search-msg" style="display: none;">Digite algo para buscar rádios</div>
             <div class="multi-direction-grid" id="master-grid"></div>
         </div>
         <div id="loading-trigger">Carregando Estações...</div>
@@ -150,6 +119,9 @@
         const carouselsArea = document.getElementById('carousels-area');
         const masterGrid = document.getElementById('master-grid');
         const badge = document.getElementById('badge-favs');
+        const searchInput = document.getElementById('input-busca');
+        const searchMsg = document.getElementById('search-msg');
+
         let radioData = [];
         let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
         let offset = 0;
@@ -160,16 +132,38 @@
             if(isFetching) return;
             isFetching = true;
             try {
-                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=50&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
+                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=100&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
                 const data = await response.json();
                 radioData = [...radioData, ...data];
-                const categoryNames = ["Mais Ouvidas", "Destaques", "Pop & Rock", "Sertanejo", "Notícias"];
-                const currentCat = categoryNames[Math.floor(offset/50) % categoryNames.length];
-                createCarousel(currentCat, data);
-                addToGrid(data);
-                offset += 50;
+                if(offset === 0) renderCarousels(data);
+                offset += 100;
             } catch (err) { console.error("Erro API", err); }
             isFetching = false;
+        }
+
+        function renderCarousels(data) {
+            createCarousel("Mais Ouvidas", data.slice(0, 20));
+            createCarousel("Destaques", data.slice(20, 40));
+        }
+
+        /* CORREÇÃO AQUI: BUSCA SÓ FUNCIONA SE TIVER TEXTO */
+        function executarBusca() {
+            const termo = searchInput.value.toLowerCase().trim();
+            masterGrid.innerHTML = '';
+            
+            if (termo === "") {
+                searchMsg.style.display = 'block';
+                return;
+            }
+            
+            searchMsg.style.display = 'none';
+            const filtrados = radioData.filter(r => 
+                r.name.toLowerCase().includes(termo) || 
+                (r.state && r.state.toLowerCase().includes(termo)) ||
+                (r.tags && r.tags.toLowerCase().includes(termo))
+            );
+
+            filtrados.forEach(r => masterGrid.appendChild(createCard(r)));
         }
 
         function createCarousel(title, list) {
@@ -179,10 +173,6 @@
             const scroll = section.querySelector('.horizontal-scroll');
             list.forEach(radio => scroll.appendChild(createCard(radio)));
             carouselsArea.appendChild(section);
-        }
-
-        function addToGrid(list) {
-            list.forEach(radio => masterGrid.appendChild(createCard(radio)));
         }
 
         function createCard(radio) {
@@ -200,24 +190,13 @@
             return el;
         }
 
-        function openRadioDetails(radio) {
-            document.getElementById('p-art').src = radio.favicon || placeholder;
-            document.getElementById('p-name').innerText = radio.name;
-            document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
-            document.getElementById('player-view').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'none';
-            if(audio.src !== radio.url_resolved) {
-                audio.src = radio.url_resolved;
-                audio.play();
-                updateIcon(true);
-            }
-        }
-
         function changeTab(mode, btn) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('player-view').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
+            document.getElementById('search-bar-area').style.display = (mode === 'grid') ? 'block' : 'none';
+
             if(mode === 'home') {
                 carouselsArea.style.display = 'block';
                 document.getElementById('grid-area').style.display = 'none';
@@ -225,24 +204,32 @@
             } else if(mode === 'grid') {
                 carouselsArea.style.display = 'none';
                 document.getElementById('grid-area').style.display = 'block';
-                document.getElementById('page-title').innerText = "Explorar";
+                document.getElementById('page-title').innerText = "Busca";
+                executarBusca();
             } else if(mode === 'lib') {
                 carouselsArea.style.display = 'none';
                 document.getElementById('grid-area').style.display = 'block';
                 document.getElementById('page-title').innerText = "Biblioteca";
+                searchMsg.style.display = 'none';
                 masterGrid.innerHTML = '';
                 favorites.forEach(f => masterGrid.appendChild(createCard(f)));
             }
+        }
+
+        function openRadioDetails(radio) {
+            document.getElementById('p-art').src = radio.favicon || placeholder;
+            document.getElementById('p-name').innerText = radio.name;
+            document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
+            document.getElementById('player-view').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+            if(audio.src !== radio.url_resolved) { audio.src = radio.url_resolved; audio.play(); updateIcon(true); }
         }
 
         function toggleFav(e, uuid) {
             e.stopPropagation();
             const idx = favorites.findIndex(f => f.stationuuid === uuid);
             if(idx > -1) favorites.splice(idx, 1);
-            else {
-                const r = radioData.find(x => x.stationuuid === uuid);
-                if(r) favorites.push(r);
-            }
+            else { const r = radioData.find(x => x.stationuuid === uuid); if(r) favorites.push(r); }
             localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
             e.currentTarget.classList.toggle('active');
             updateBadge();
@@ -259,13 +246,7 @@
             else { audio.pause(); updateIcon(false); }
         }
 
-        function updateIcon(playing) {
-            document.getElementById('play-icon').setAttribute('d', playing ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z");
-        }
-
-        window.addEventListener('scroll', () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) loadRadios();
-        });
+        function updateIcon(p) { document.getElementById('play-icon').setAttribute('d', p ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"); }
 
         loadRadios();
         updateBadge();

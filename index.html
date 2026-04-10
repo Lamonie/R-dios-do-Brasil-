@@ -1,1 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio App Skeleton</title>
+    <style>
+        /* CSS - O ESTILO DO APP */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        body {
+            background-color: #000;
+            color: #fff;
+            overflow: hidden; /* Evita rolagem da página inteira */
+        }
+
+        /* Bordas laranjas fininhas solicitadas */
+        .border-orange {
+            border: 1px solid #ff8c00;
+        }
+
+        /* TELAS */
+        .screen {
+            display: none;
+            height: 100vh;
+            padding-bottom: 70px; /* Espaço para a barra inferior */
+            overflow-y: auto;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* LOGIN E CADASTRO */
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #111;
+            color: white;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: #ff8c00;
+            color: black;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* CARROSSEL HORIZONTAL */
+        .carousel-container {
+            padding: 15px;
+        }
+
+        .carousel-title {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #ff8c00;
+        }
+
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding-bottom: 10px;
+        }
+
+        .carousel::-webkit-scrollbar {
+            display: none; /* Esconde barra de rolagem */
+        }
+
+        .radio-card {
+            min-width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #111;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .radio-logo {
+            width: 60px;
+            height: 60px;
+            background: #333;
+            margin-bottom: 8px;
+            border-radius: 50%;
+        }
+
+        /* BARRA DE NAVEGAÇÃO INFERIOR */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 65px;
+            background: #000;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #ff8c00;
+        }
+
+        .tab-item {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .tab-item.active-tab {
+            color: #ff8c00;
+        }
+
+        h1 { padding: 20px; color: #ff8c00; }
+    </style>
+</head>
+<body>
+
+    <div id="screen-login" class="screen active">
+        <div class="auth-container">
+            <h2 style="color:#ff8c00">Bem-vindo</h2>
+            <div class="border-orange" style="padding: 20px; border-radius: 15px; width: 100%;">
+                <input type="text" id="login-user" class="border-orange" placeholder="Usuário">
+                <input type="password" id="login-pass" class="border-orange" placeholder="Senha">
+                <button onclick="handleLogin()">ENTRAR</button>
+                <p style="text-align:center; margin-top:15px; font-size:0.8rem" onclick="toggleAuth()">Não tem conta? Cadastre-se</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-register" class="screen">
+        <div class="auth-container">
+            <h2 style="color:#ff8c00">Criar Conta</h2>
+            <div class="border-orange" style="padding: 20px; border-radius: 15px; width: 100%;">
+                <input type="text" id="reg-user" class="border-orange" placeholder="Escolha um Usuário">
+                <input type="password" id="reg-pass" class="border-orange" placeholder="Escolha uma Senha">
+                <button onclick="handleRegister()">CADASTRAR</button>
+                <p style="text-align:center; margin-top:15px; font-size:0.8rem" onclick="toggleAuth()">Já tem conta? Login</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-home" class="screen">
+        <h1>Minhas Rádios</h1>
+        
+        <div class="carousel-container">
+            <h3 class="carousel-title">Destaques</h3>
+            <div class="carousel">
+                <div class="radio-card border-orange"><div class="radio-logo border-orange"></div>Rádio 1</div>
+                <div class="radio-card border-orange"><div class="radio-logo border-orange"></div>Rádio 2</div>
+                <div class="radio-card border-orange"><div class="radio-logo border-orange"></div>Rádio 3</div>
+                <div class="radio-card border-orange"><div class="radio-logo border-orange"></div>Rádio 4</div>
+                <div class="radio-card border-orange"><div class="radio-logo border-orange"></div>Rádio 5</div>
+            </div>
+        </div>
+
+        <div class="carousel-container">
+            <h3 class="carousel-title">Populares no Ceará</h3>
+            <div class="carousel">
+                <div class="radio-card border-orange"><div class="radio-logo border-orange"></div>Rádio A</div>
+                <div class="radio-card border-orange"><div class="radio-logo border-orange"></div>Rádio B</div>
+                <div class="radio-card border-orange"><div class="radio-logo border-orange"></div>Rádio C</div>
+                <div class="radio-card border-orange"><div class="radio-logo border-orange"></div>Rádio D</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-lib" class="screen">
+        <h1>Favoritos</h1>
+        <div style="padding: 20px;">
+            <p>Sua lista de rádios salvas aparecerá aqui.</p>
+        </div>
+    </div>
+
+    <nav class="tab-bar" id="main-nav" style="display: none;">
+        <div class="tab-item active-tab" onclick="navigate('home')">
+            <div style="font-size: 1.5rem;">📻</div>
+            <span>Rádio</span>
+        </div>
+        <div class="tab-item" onclick="navigate('lib')">
+            <div style="font-size: 1.5rem;">⭐</div>
+            <span>Favoritos</span>
+        </div>
+        <div class="tab-item" onclick="logout()">
+            <div style="font-size: 1.5rem;">🚪</div>
+            <span>Sair</span>
+        </div>
+    </nav>
+
+    <script>
+        /* JAVASCRIPT - A INTELIGÊNCIA DO APP */
+
+        // Alternar entre Login e Cadastro
+        function toggleAuth() {
+            document.getElementById('screen-login').classList.toggle('active');
+            document.getElementById('screen-register').classList.toggle('active');
+        }
+
+        // Simulação de Cadastro
+        function handleRegister() {
+            const user = document.getElementById('reg-user').value;
+            const pass = document.getElementById('reg-pass').value;
+            if(user && pass) {
+                localStorage.setItem('user', user);
+                localStorage.setItem('pass', pass);
+                alert("Cadastro realizado! Agora faça login.");
+                toggleAuth();
+            } else {
+                alert("Preencha todos os campos.");
+            }
+        }
+
+        // Simulação de Login
+        function handleLogin() {
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+            const savedUser = localStorage.getItem('user');
+            const savedPass = localStorage.getItem('pass');
+
+            if(user === savedUser && pass === savedPass) {
+                document.getElementById('screen-login').classList.remove('active');
+                document.getElementById('screen-home').classList.add('active');
+                document.getElementById('main-nav').style.display = 'flex';
+            } else {
+                alert("Usuário ou senha incorretos.");
+            }
+        }
+
+        // Navegação entre abas
+        function navigate(target) {
+            // Esconde todas as telas
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // Remove destaque dos botões
+            document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active-tab'));
+            
+            // Ativa a tela e o botão selecionado
+            document.getElementById('screen-' + target).classList.add('active');
+            event.currentTarget.classList.add('active-tab');
+        }
+
+        // Sair
+        function logout() {
+            location.reload(); // Reinicia o app
+        }
+    </script>
+</body>
+</html>

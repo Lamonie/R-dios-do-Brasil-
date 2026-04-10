@@ -8,7 +8,7 @@
         :root { 
             --bg: #000; 
             --apple-red: #ff2d55;
-            --glass: rgba(28, 28, 30, 0.85);
+            --glass: rgba(28, 28, 30, 0.9);
             --glass-border: rgba(255, 255, 255, 0.1);
             --yellow: #FFD700;
         }
@@ -16,217 +16,156 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; overflow-x: hidden; width: 100vw; }
 
-        /* FIXANDO O TOPO PARA O GRID PASSAR POR BAIXO */
-        .top-navigation {
+        /* TOPO FIXO QUE NÃO SOBE */
+        .header-fixed-top {
             position: sticky;
             top: 0;
+            z-index: 1500;
             background: var(--bg);
-            z-index: 1000;
-            padding-bottom: 10px;
+            padding-bottom: 5px;
         }
 
-        header { padding: 50px 20px 10px; font-size: 32px; font-weight: 800; }
+        header { padding: 40px 20px 5px; font-size: 32px; font-weight: 800; }
 
         .section-container { margin-bottom: 25px; width: 100%; }
-        .section-title { padding: 0 20px 10px; font-size: 18px; font-weight: 700; color: #fff; }
+        .section-title { padding: 0 20px 10px; font-size: 20px; font-weight: 700; color: #fff; }
         
         .horizontal-scroll { 
             display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px; 
-            scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth;
+            scrollbar-width: none; -ms-overflow-style: none; 
         }
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
+        /* CAPAS GRANDES E VISÍVEIS */
         .card { 
-            width: 145px; min-width: 145px; background: #1c1c1e; border-radius: 14px; 
+            width: 160px; min-width: 160px; background: #1c1c1e; border-radius: 16px; 
             overflow: hidden; border: 0.5px solid #333; position: relative; flex-shrink: 0;
         }
         .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; background: #2c2c2e; }
         
         .badge-type {
-            position: absolute; top: 10px; left: 10px; background: var(--apple-red);
-            color: white; font-size: 9px; font-weight: 900; padding: 2px 6px;
+            position: absolute; top: 12px; left: 12px; background: var(--apple-red);
+            color: white; font-size: 10px; font-weight: 900; padding: 2px 7px;
             border-radius: 4px; z-index: 5; text-transform: uppercase;
         }
 
-        .card-info { padding: 10px 8px; font-size: 12px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-info { padding: 12px 10px; font-size: 13px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .fav-btn {
-            position: absolute; top: 6px; right: 6px; width: 30px; height: 30px;
+            position: absolute; top: 8px; right: 8px; width: 34px; height: 34px;
             background: rgba(0,0,0,0.6); border-radius: 50%; display: flex;
             align-items: center; justify-content: center; z-index: 10;
         }
-        .fav-btn svg, .player-fav-btn svg { width: 22px; fill: #666; }
-        .fav-btn.active svg, .player-fav-btn.active svg { fill: var(--yellow); }
+        .fav-btn svg { width: 22px; fill: #666; }
+        .fav-btn.active svg { fill: var(--yellow); }
 
-        /* GRID CENTRALIZADO E COM ESPAÇAMENTO PARA O DOCK */
-        .grid-wrapper { 
-            width: 100vw; 
-            padding: 20px 0 200px; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .multi-direction-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 145px); /* FIXANDO 2 COLUNAS */
-            justify-content: center; /* CENTRALIZAÇÃO TOTAL NA TELA */
-            gap: 20px; 
-            width: 100%;
-        }
+        /* CONTEÚDO QUE ROLA PARA CIMA/BAIXO */
+        .scrollable-content { padding-bottom: 220px; }
 
-        #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .player-art { width: 85%; max-width: 320px; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin-bottom: 20px; }
-        .player-fav-btn { background: rgba(255,255,255,0.1); border: none; padding: 12px; border-radius: 50%; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+        #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2500; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .player-art { width: 80%; max-width: 320px; aspect-ratio: 1/1; border-radius: 28px; object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.9); margin-bottom: 30px; }
 
+        /* BARRAS SEMPRE NO TOPO */
         .mini-player {
-            position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
-            width: 92%; max-width: 400px; height: 56px; background: var(--glass);
+            position: fixed; bottom: 125px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 420px; height: 60px; background: var(--glass);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 12px; border: 1px solid var(--glass-border);
-            display: none; align-items: center; padding: 0 12px; z-index: 1100;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 14px; border: 1px solid var(--glass-border);
+            display: none; align-items: center; padding: 0 15px; z-index: 2000;
         }
-        .mini-art { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; margin-right: 12px; }
-        .mini-info { flex: 1; overflow: hidden; }
-        .mini-info h4 { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mini-art { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; margin-right: 15px; }
 
-        .apple-dock { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; height: 75px; z-index: 1200; background: var(--glass); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border-radius: 38px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-around; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #8e8e93; position: relative; }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: #8e8e93; }
-        .nav-item span { font-size: 10px; font-weight: 700; text-transform: uppercase; }
-        .nav-item.active { color: var(--apple-red); }
-        .nav-item.active svg { fill: var(--apple-red); }
-
-        #badge-favs { position: absolute; top: -5px; right: 15px; background: var(--yellow); color: #000; font-size: 11px; font-weight: 900; min-width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid #000; }
-        .dock-play-btn { width: 58px; height: 58px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); }
+        .apple-dock { 
+            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); 
+            width: 90%; max-width: 420px; height: 80px; z-index: 2100; 
+            background: var(--glass); backdrop-filter: blur(30px) saturate(180%); 
+            border-radius: 40px; border: 1px solid var(--glass-border); 
+            display: flex; align-items: center; justify-content: space-around; 
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #8e8e93; }
+        .nav-item.active { color: #fff; }
+        .nav-item svg { width: 26px; height: 26px; margin-bottom: 4px; fill: currentColor; }
+        .nav-item span { font-size: 10px; font-weight: 700; }
+        .dock-play-btn { width: 62px; height: 62px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
     <div id="main-content">
-        <div class="top-navigation">
-            <header id="page-title">Rádios</header>
-            <div id="carousels-area"></div>
-        </div>
+        <div class="header-fixed-top">
+            <header>Rádios</header>
+            <div id="carousels-top"></div> </div>
         
-        <div id="grid-area" class="grid-wrapper">
-            <div id="section-grid-title" class="section-title" style="width: 100%; text-align: left;">Explorar Estações</div>
-            <div class="multi-direction-grid" id="master-grid"></div>
-        </div>
+        <div class="scrollable-content" id="carousels-bottom">
+            </div>
     </div>
 
     <div id="mini-player" class="mini-player" onclick="reopenPlayer()">
         <img id="m-art" class="mini-art" src="">
-        <div class="mini-info"><h4 id="m-name">Rádio</h4></div>
-        <div class="mini-controls" onclick="event.stopPropagation(); togglePlayback();">
-            <svg viewBox="0 0 24 24" width="28"><path id="mini-play-icon" fill="white" d="M8 5v14l11-7z"/></svg>
-        </div>
+        <div style="flex:1; overflow:hidden;"><h4 id="m-name" style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">Rádio</h4></div>
+        <div onclick="event.stopPropagation(); togglePlayback();"><svg viewBox="0 0 24 24" width="32"><path id="mini-play-icon" fill="white" d="M8 5v14l11-7z"/></svg></div>
+    </div>
+
+    <div class="apple-dock">
+        <div class="nav-item active" onclick="changeTab('home', this)"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>INÍCIO</span></div>
+        <div class="nav-item" onclick="changeTab('lib', this)"><svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg><span>BIBLIOTECA</span></div>
+        <div class="dock-play-btn" onclick="togglePlayback()"><svg viewBox="0 0 24 24" width="34"><path id="play-icon" fill="white" d="M8 5v14l11-7z"/></svg></div>
+        <div class="nav-item" onclick="changeTab('grid', this)"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><span>BUSCA</span></div>
     </div>
 
     <div id="player-view">
         <img id="p-art" class="player-art" src="">
-        <button id="p-fav-btn" class="player-fav-btn" onclick="toggleFavFromPlayer()">
-            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-        </button>
-        <div class="player-meta">
-            <h2 id="p-name">Selecionar Rádio</h2>
-            <p id="p-loc">Cidade, País</p>
-        </div>
-    </div>
-
-    <div class="apple-dock">
-        <div class="nav-item active" onclick="changeTab('home', this)">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            <span>Início</span>
-        </div>
-        <div class="nav-item" onclick="changeTab('lib', this)">
-            <div id="badge-favs">0</div>
-            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
-            <span>Biblioteca</span>
-        </div>
-        <div class="dock-play-btn" onclick="togglePlayback()">
-            <svg viewBox="0 0 24 24" width="30"><path id="play-icon" fill="white" d="M8 5v14l11-7z"/></svg>
-        </div>
-        <div class="nav-item" onclick="changeTab('grid', this)">
-            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            <span>Busca</span>
-        </div>
+        <h2 id="p-name">Nome da Rádio</h2>
+        <p id="p-loc" style="color:#8e8e93; margin-top:5px;">Localização</p>
     </div>
 
     <audio id="audio-engine"></audio>
 
     <script>
         const audio = document.getElementById('audio-engine');
-        const carouselsArea = document.getElementById('carousels-area');
-        const masterGrid = document.getElementById('master-grid');
-        const badge = document.getElementById('badge-favs');
-        const mini = document.getElementById('mini-player');
-        
-        let radioData = [];
         let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
-        let currentRadio = null; 
-        let offset = 0;
-        let isFetching = false;
+        let currentRadio = null;
 
-        const trapiaAM = {
-            name: "Trapiá AM",
-            stationuuid: "trapia_fixa_01",
-            favicon: "https://trapiafm.com.br/wp-content/uploads/2023/04/cropped-logo-trapia-1.png",
-            url_resolved: "https://shout11.srvstm.com/8314/stream",
-            state: "Ceará", country: "Brazil", tags: "am, forro"
-        };
+        const trapiaAM = { name: "Trapiá AM", stationuuid: "t1", favicon: "https://trapiafm.com.br/wp-content/uploads/2023/04/cropped-logo-trapia-1.png", url_resolved: "https://shout11.srvstm.com/8314/stream" };
 
-        async function loadRadios(isInitial = false) {
-            if(isFetching) return;
-            isFetching = true;
+        async function loadRadios() {
             try {
-                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?limit=60&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
-                const data = await response.json();
-                if(isInitial) {
-                    const forroOnly = data.filter(r => r.tags.toLowerCase().includes('forro'));
-                    const listForro = [trapiaAM, ...forroOnly].slice(0, 10);
-                    renderCarousels(listForro);
-                    addToGrid(data);
-                } else {
-                    addToGrid(data);
-                }
-                radioData = [...radioData, ...data];
-                offset += 60;
-            } catch (err) { console.error(err); }
-            finally { isFetching = false; }
+                const res = await fetch(`https://de1.api.radio-browser.info/json/stations/search?limit=200&hidebroken=true&order=clickcount&reverse=true`);
+                const data = await res.json();
+                
+                // 1. CARROSSEL FIXO (FORRÓ)
+                const forroData = [trapiaAM, ...data.filter(r => r.tags.toLowerCase().includes('forro'))].slice(0, 15);
+                renderCarousel("Prioridade Forró & Trapiá", forroData, document.getElementById('carousels-top'));
+
+                // 2. VÁRIAS FILEIRAS NA VERTICAL (Rádio Brasil e Gêneros)
+                const bottomArea = document.getElementById('carousels-bottom');
+                const genres = ["Pop Brasil", "Sertanejo", "Notícias", "Top Mundo", "Anos 80", "Religiosas", "Jazz"];
+                genres.forEach((g, i) => {
+                    renderCarousel(g, data.slice(i*15 + 15, i*15 + 30), bottomArea);
+                });
+            } catch(e) { console.error(e); }
         }
 
-        function renderCarousels(data) {
-            carouselsArea.innerHTML = '';
-            createCarousel("Prioridade Forró & Trapiá", data, carouselsArea);
-        }
-
-        function createCarousel(title, list, container) {
-            const section = document.createElement('div');
-            section.className = 'section-container';
-            section.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
-            const scroll = section.querySelector('.horizontal-scroll');
-            list.forEach(radio => scroll.appendChild(createCard(radio)));
-            container.appendChild(section);
-        }
-
-        function addToGrid(list) {
-            const frag = document.createDocumentFragment();
-            list.forEach(radio => frag.appendChild(createCard(radio)));
-            masterGrid.appendChild(frag);
+        function renderCarousel(title, list, container) {
+            const sec = document.createElement('div');
+            sec.className = 'section-container';
+            sec.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
+            const scroll = sec.querySelector('.horizontal-scroll');
+            list.forEach(r => scroll.appendChild(createCard(r)));
+            container.appendChild(sec);
         }
 
         function createCard(radio) {
-            const isFav = favorites.some(f => f.stationuuid === radio.stationuuid);
             const el = document.createElement('div');
             el.className = 'card';
             el.onclick = () => openRadio(radio);
+            const isFav = favorites.some(f => f.stationuuid === radio.stationuuid);
             el.innerHTML = `
-                <div class="badge-type">${radio.name.toLowerCase().includes("am") ? "AM" : "FM"}</div>
-                <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
+                <div class="badge-type">FM</div>
+                <div class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav('${radio.stationuuid}')">
                     <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                 </div>
-                <img class="card-img" src="${radio.favicon || 'https://via.placeholder.com/150/2c2c2e/fff?text=Radio'}" loading="lazy">
+                <img class="card-img" src="${radio.favicon || 'https://via.placeholder.com/160/2c2c2e/fff?text=Radio'}" onerror="this.src='https://via.placeholder.com/160/2c2c2e/fff?text=Rádio'">
                 <div class="card-info">${radio.name}</div>
             `;
             return el;
@@ -236,59 +175,19 @@
             currentRadio = radio;
             document.getElementById('p-art').src = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
             document.getElementById('p-name').innerText = radio.name;
-            document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
             document.getElementById('m-art').src = radio.favicon || 'https://via.placeholder.com/40/2c2c2e/fff?text=R';
             document.getElementById('m-name').innerText = radio.name;
-            
-            mini.style.display = 'none';
             document.getElementById('player-view').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'none';
-            
-            if(audio.src !== radio.url_resolved) {
-                audio.src = radio.url_resolved;
-                audio.play();
-                updateIcon(true);
-            }
+            document.getElementById('mini-player').style.display = 'flex';
+            if(audio.src !== radio.url_resolved) { audio.src = radio.url_resolved; audio.play(); updateIcon(true); }
         }
 
-        function changeTab(mode, btn) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('player-view').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            if(currentRadio) mini.style.display = 'flex';
-            if(mode === 'lib') renderLibrary();
-            else if(mode === 'home') {
-                document.querySelector('.top-navigation').style.display = 'block';
-                document.getElementById('section-grid-title').innerText = "Explorar Estações";
-                masterGrid.innerHTML = ''; offset = 0; loadRadios(true);
-            }
-        }
+        function reopenPlayer() { if(currentRadio) document.getElementById('player-view').style.display = 'flex'; }
+        function changeTab(mode, btn) { document.getElementById('player-view').style.display = 'none'; }
+        function togglePlayback() { if(audio.paused) { audio.play(); updateIcon(true); } else { audio.pause(); updateIcon(false); } }
+        function updateIcon(p) { const path = p ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"; document.getElementById('play-icon').setAttribute('d', path); document.getElementById('mini-play-icon').setAttribute('d', path); }
 
-        function renderLibrary() {
-            document.querySelector('.top-navigation').style.display = 'none';
-            masterGrid.innerHTML = '';
-            document.getElementById('section-grid-title').innerText = "Minha Biblioteca";
-            favorites.forEach(f => masterGrid.appendChild(createCard(f)));
-        }
-
-        function togglePlayback() {
-            if(audio.paused) { audio.play(); updateIcon(true); }
-            else { audio.pause(); updateIcon(false); }
-        }
-
-        function updateIcon(p) { 
-            const path = p ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z";
-            document.getElementById('play-icon').setAttribute('d', path); 
-            document.getElementById('mini-play-icon').setAttribute('d', path); 
-        }
-
-        function updateBadge() {
-            badge.innerText = favorites.length;
-            badge.style.display = favorites.length > 0 ? 'flex' : 'none';
-        }
-
-        loadRadios(true);
+        loadRadios();
     </script>
 </body>
 </html>

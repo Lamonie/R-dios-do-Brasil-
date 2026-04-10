@@ -3,73 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LAMONIE MUSIC PRO</title>
+    <title>LAMONIE MUSIC - VOLTA DAS RÁDIOS</title>
     <style>
         :root {
             --orange: #ff8c00;
             --ios-red: #ff3b30;
-            --glass: rgba(30, 30, 30, 0.75);
-            --border: 0.5px solid var(--orange);
+            --glass: rgba(25, 25, 25, 0.85);
+            --border-thin: 0.5px solid var(--orange);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background: #000; color: white; font-family: -apple-system, sans-serif; overflow: hidden; height: 100vh; }
 
         /* HEADER */
-        header { padding: 60px 20px 10px; display: flex; justify-content: space-between; align-items: center; }
+        header { padding: 55px 20px 10px; }
         header h1 { font-size: 34px; font-weight: 800; color: var(--orange); }
 
-        /* CARROSSEL DE QUADRADOS (IGUAL APPLE MUSIC) */
-        .section-label { padding: 20px; font-size: 20px; font-weight: 700; color: white; }
-        .carousel {
-            display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 20px;
-            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+        /* GRADE FIXA DE RÁDIOS (3 COLUNAS) - NÃO FICA BOBA */
+        #main-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 20px;
+            height: calc(100vh - 250px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
-        .carousel::-webkit-scrollbar { display: none; }
-        
-        .radio-card { min-width: 145px; scroll-snap-align: start; cursor: pointer; }
-        .thumb { 
-            width: 145px; height: 145px; background: #1c1c1e; border-radius: 12px; 
-            margin-bottom: 8px; border: 0.5px solid #333; overflow: hidden;
-        }
-        .thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .radio-n { font-size: 12px; font-weight: 500; text-align: center; color: #eee; }
 
-        /* --- BARRA DE PLAY (CÁPSULA DE VIDRO IGUAL DA IMAGEM) --- */
-        #player-bar {
+        .radio-item { aspect-ratio: 1/1; background: #1c1c1e; border-radius: 14px; border: 0.5px solid #333; overflow: hidden; cursor: pointer; }
+        .radio-item img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- BOTÃO DE PLAY (CÁPSULA DE VIDRO IGUAL IMAGEM) --- */
+        #play-capsule {
             position: fixed; bottom: 105px; left: 15px; right: 15px;
-            height: 65px; background: var(--glass); backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px); border-radius: 15px;
+            height: 72px; background: var(--glass); backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px); border-radius: 20px;
             display: none; align-items: center; justify-content: space-between;
-            padding: 0 15px; border: var(--border); z-index: 2000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 0 15px; border: var(--border-thin); z-index: 3000;
         }
-        .p-info { display: flex; align-items: center; gap: 12px; max-width: 65%; }
-        .p-art { width: 45px; height: 45px; border-radius: 8px; background: #333; }
-        .p-txt { overflow: hidden; }
-        .p-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-info { display: flex; align-items: center; gap: 12px; max-width: 60%; }
+        .p-art { width: 50px; height: 50px; border-radius: 10px; background: #333; border: 0.5px solid #444; }
+        .p-text { overflow: hidden; }
+        .p-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .p-controls { display: flex; gap: 20px; font-size: 22px; }
+        .p-controls { display: flex; gap: 20px; font-size: 24px; cursor: pointer; }
 
-        /* --- NAV BAR (BOTÕES AVANÇADOS IGUAL APPLE MUSIC) --- */
-        .tab-nav {
-            position: fixed; bottom: 25px; left: 15px; right: 85px;
-            height: 60px; display: flex; gap: 10px; z-index: 1000;
+        /* --- TAB BAR (BOTÕES DE VIDRO AVANÇADOS) --- */
+        .tab-bar {
+            position: fixed; bottom: 25px; left: 15px; right: 90px;
+            height: 60px; display: flex; gap: 10px; z-index: 2000;
         }
-        .glass-btn {
+        .btn-vidro {
             flex: 1; height: 100%; background: var(--glass); backdrop-filter: blur(25px);
-            border-radius: 30px; border: var(--border); display: flex;
+            border-radius: 30px; border: var(--border-thin); display: flex;
             flex-direction: column; align-items: center; justify-content: center;
             font-size: 11px; font-weight: 600; color: #fff; cursor: pointer;
         }
-        .tab-active { color: var(--ios-red); border-color: var(--ios-red); background: rgba(255,59,48,0.15); }
+        /* Botão Biblioteca com Destaque Rosa/Vermelho */
+        .btn-vidro.active { color: var(--ios-red); border-color: var(--ios-red); background: rgba(255, 59, 48, 0.15); }
 
-        .search-circle {
+        /* BOTÃO BUSCA (REDONDO) */
+        .btn-busca {
             position: fixed; bottom: 25px; right: 15px;
             width: 60px; height: 60px; background: #1c1c1e;
-            border-radius: 50%; border: var(--border);
+            border-radius: 50%; border: var(--border-thin);
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px; z-index: 1000; cursor: pointer;
+            font-size: 24px; z-index: 2000; cursor: pointer;
         }
     </style>
 </head>
@@ -77,72 +76,69 @@
 
     <header><h1>Rádio</h1></header>
 
-    <div id="content-scroll" style="height: 70vh; overflow-y: auto;">
-        <div class="section-label">Sugestões de Forró</div>
-        <div id="forro-list" class="carousel"></div>
+    <div id="main-grid"></div>
 
-        <div class="section-label">Gospel e Mais</div>
-        <div id="gospel-list" class="carousel"></div>
-    </div>
-
-    <div id="player-bar">
+    <div id="play-capsule">
         <div class="p-info">
             <img id="p-img" class="p-art">
-            <div class="p-txt">
-                <div id="p-title" class="p-name">Selecione uma rádio</div>
+            <div class="p-text">
+                <div id="p-name" class="p-title">Carregando...</div>
                 <div style="font-size: 11px; color: var(--orange);">Ao Vivo</div>
             </div>
         </div>
         <div class="p-controls">
-            <span onclick="audio.toggle()" id="play-btn">⏸️</span>
+            <span onclick="lamonie.toggle()" id="play-icon">⏸️</span>
             <span>⏩</span>
         </div>
     </div>
 
-    <nav class="tab-nav">
-        <div class="glass-btn" onclick="location.reload()"><div>🏠</div>Início</div>
-        <div class="glass-btn"><div>📻</div>Rádio</div>
-        <div class="glass-btn tab-active"><div>📋</div>Biblioteca</div>
+    <nav class="tab-bar">
+        <div class="btn-vidro" onclick="location.reload()"><div>🏠</div>Início</div>
+        <div class="btn-vidro"><div>📻</div>Rádio</div>
+        <div class="btn-vidro active"><div>📋</div>Biblioteca</div>
     </nav>
-    <div class="search-circle" onclick="alert('Busca Ativada')">🔍</div>
+    <div class="btn-busca">🔍</div>
 
-    <audio id="engine" crossorigin="anonymous"></audio>
+    <audio id="audio-engine" crossorigin="anonymous"></audio>
 
     <script>
-        const audio = {
+        const lamonie = {
             init: async () => {
-                const fetchR = async (tag, id) => {
-                    const res = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${tag}&limit=15&hidebroken=true&order=clickcount&reverse=true`);
+                const grid = document.getElementById('main-grid');
+                grid.innerHTML = ""; // Limpa antes de carregar
+                try {
+                    // Busca focada em Forró e Brasil (Ceará/Nordeste)
+                    const res = await fetch('https://de1.api.radio-browser.info/json/stations/search?country=Brazil&tag=forro,brega,nordeste&limit=100&hidebroken=true&order=clickcount&reverse=true');
                     const data = await res.json();
-                    const el = document.getElementById(id);
+                    
                     data.forEach(r => {
-                        const card = document.createElement('div');
-                        card.className = 'radio-card';
-                        card.onclick = () => audio.play(r);
-                        card.innerHTML = `<div class="thumb"><img src="${r.favicon || 'https://via.placeholder.com/150/1c1c1e/white?text=RADIO'}"></div><div class="radio-n">${r.name}</div>`;
-                        el.appendChild(card);
+                        const box = document.createElement('div');
+                        box.className = 'radio-item';
+                        box.onclick = () => lamonie.play(r);
+                        box.innerHTML = `<img src="${r.favicon || 'https://via.placeholder.com/150/1c1c1e/orange?text=RADIO'}">`;
+                        grid.appendChild(box);
                     });
-                };
-                fetchR("tag=forro", "forro-list");
-                fetchR("tag=gospel", "gospel-list");
+                } catch(e) { console.error("Erro ao carregar as rádios."); }
             },
             play: (r) => {
-                const player = document.getElementById('engine');
-                const bar = document.getElementById('player-bar');
-                player.src = r.url_resolved;
-                player.play();
-                document.getElementById('p-img').src = r.favicon;
-                document.getElementById('p-title').innerText = r.name;
-                bar.style.display = 'flex';
-                document.getElementById('play-btn').innerText = "⏸️";
+                const audio = document.getElementById('audio-engine');
+                const dock = document.getElementById('play-capsule');
+                audio.src = r.url_resolved;
+                audio.play();
+                
+                document.getElementById('p-img').src = r.favicon || '';
+                document.getElementById('p-name').innerText = r.name;
+                dock.style.display = 'flex';
+                document.getElementById('play-icon').innerText = "⏸️";
             },
             toggle: () => {
-                const p = document.getElementById('engine');
-                const b = document.getElementById('play-btn');
-                p.paused ? (p.play(), b.innerText = "⏸️") : (p.pause(), b.innerText = "▶️");
+                const a = document.getElementById('audio-engine');
+                const i = document.getElementById('play-icon');
+                if(a.paused) { a.play(); i.innerText = "⏸️"; }
+                else { a.pause(); i.innerText = "▶️"; }
             }
         };
-        audio.init();
+        lamonie.init();
     </script>
 </body>
 </html>

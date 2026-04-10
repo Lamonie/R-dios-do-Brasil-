@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lamoniê Flow - Premium</title>
+    <title>Lamoniê Flow - Busca Inteligente</title>
     <style>
         :root { 
             --bg: #000; 
@@ -16,117 +16,74 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; overflow-x: hidden; width: 100vw; }
 
-        /* HEADER FIXO */
         header { padding: 50px 20px 10px; font-size: 32px; font-weight: 800; background: var(--bg); position: sticky; top: 0; z-index: 100; }
 
-        /* SEÇÕES DE CARROSSEL */
-        .section-container { margin-bottom: 25px; }
-        .section-title { padding: 0 20px 10px; font-size: 18px; font-weight: 700; color: #fff; }
-        .horizontal-scroll { 
-            display: flex; overflow-x: auto; gap: 15px; padding: 0 20px; 
-            scrollbar-width: none; -ms-overflow-style: none;
+        /* BUSCA UI */
+        .search-container { padding: 10px 20px; position: sticky; top: 100px; z-index: 101; background: var(--bg); }
+        .search-input { 
+            width: 100%; padding: 12px 15px; border-radius: 12px; border: none; 
+            background: #1c1c1e; color: white; font-size: 16px; outline: none;
+            border: 1px solid var(--glass-border);
         }
+        .search-msg { text-align: center; padding: 40px 20px; color: #666; font-weight: 600; }
+
+        /* GRID E LAYOUT */
+        .section-container { margin-bottom: 25px; }
+        .section-title { padding: 0 20px 10px; font-size: 18px; font-weight: 700; }
+        .horizontal-scroll { display: flex; overflow-x: auto; gap: 15px; padding: 0 20px; scrollbar-width: none; }
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
-        /* GRID EXPANSIVO (MODO BUSCA/EXPLORAR) */
-        .grid-wrapper {
-            width: 100vw; overflow: auto; padding: 20px;
-            display: none; /* Ativado via JS */
-        }
-        .multi-direction-grid {
-            display: grid; 
-            grid-template-columns: repeat(10, 110px); /* Expande lateralmente */
-            gap: 15px;
-        }
+        .grid-wrapper { width: 100vw; overflow-y: auto; padding: 20px; display: none; }
+        .multi-direction-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
 
-        /* CARDS QUADRADOS (1:1) */
-        .card { 
-            width: 110px; background: #1c1c1e; border-radius: 14px; 
-            overflow: hidden; border: 0.5px solid #333; position: relative; flex-shrink: 0;
-        }
+        .card { background: #1c1c1e; border-radius: 14px; overflow: hidden; border: 0.5px solid #333; position: relative; }
         .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; background: #2c2c2e; }
-        .card-info { padding: 8px; font-size: 11px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-info { padding: 8px; font-size: 11px; font-weight: 600; text-align: center; }
+        .card-loc { font-size: 9px; color: #888; text-align: center; padding-bottom: 8px; display: block; }
         
-        /* ESTRELA DE FAVORITOS */
         .fav-btn {
-            position: absolute; top: 5px; right: 5px; width: 26px; height: 26px;
+            position: absolute; top: 5px; right: 5px; width: 28px; height: 28px;
             background: rgba(0,0,0,0.6); border-radius: 50%; display: flex;
             align-items: center; justify-content: center; z-index: 10;
         }
-        .fav-btn svg { width: 15px; fill: #666; }
+        .fav-btn svg { width: 16px; fill: #666; }
         .fav-btn.active svg { fill: var(--yellow); }
 
-        /* SEGUNDA PÁGINA: DETALHES DA RÁDIO (PLAYER FULL) */
-        #player-view {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 800; display: none; 
-            flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; text-align: center;
-        }
-        .player-art { 
-            width: 85%; max-width: 320px; aspect-ratio: 1/1; 
-            border-radius: 24px; object-fit: cover; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin-bottom: 40px; 
-        }
-        .player-meta h2 { font-size: 24px; margin-bottom: 8px; }
-        .player-meta p { color: #888; font-size: 16px; }
+        /* PLAYER E DOCK (PRESERVADOS) */
+        #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 800; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .player-art { width: 85%; max-width: 320px; aspect-ratio: 1/1; border-radius: 24px; margin-bottom: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
 
-        /* A BARRA DE BOTÕES (DOCK) - NUNCAOME! */
-        .apple-dock {
-            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 400px; height: 75px; z-index: 1000;
-            background: var(--glass); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border-radius: 38px; border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: space-around;
-        }
-
+        .apple-dock { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; height: 75px; z-index: 1000; background: var(--glass); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border-radius: 38px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-around; }
         .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #8e8e93; position: relative; }
         .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: #8e8e93; }
-        .nav-item span { font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .nav-item span { font-size: 10px; font-weight: 700; }
         .nav-item.active { color: var(--apple-red); }
         .nav-item.active svg { fill: var(--apple-red); }
-
-        /* CONTADOR AMARELO - BIBLIOTECA */
-        #badge-favs {
-            position: absolute; top: -6px; right: 20%; background: var(--yellow);
-            color: #000; font-size: 10px; font-weight: 900; min-width: 18px; height: 18px;
-            border-radius: 10px; display: none; align-items: center; justify-content: center; padding: 0 4px;
-        }
-
-        /* PLAY CENTRAL */
-        .dock-play-btn {
-            width: 58px; height: 58px; background: rgba(255,255,255,0.1);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            border: 1px solid var(--glass-border);
-        }
-
-        #loading-trigger { height: 100px; display: flex; align-items: center; justify-content: center; color: var(--apple-red); font-weight: bold; }
-        
-        /* MODO FAKE (WIREFRAME) */
-        .fake-mode .card-img { background: #333; }
-        .fake-mode .card-info, .fake-mode .fav-btn { display: none; }
+        #badge-favs { position: absolute; top: -6px; right: 20%; background: var(--yellow); color: #000; font-size: 10px; font-weight: 900; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; }
+        .dock-play-btn { width: 58px; height: 58px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); }
     </style>
 </head>
-<body class="real-mode">
+<body>
 
     <div id="main-content">
         <header id="page-title">Rádios</header>
         
+        <div id="search-bar-area" class="search-container" style="display: none;">
+            <input type="text" id="input-busca" class="search-input" placeholder="Nome, cidade, país ou tag..." oninput="executarBusca()">
+        </div>
+
         <div id="carousels-area"></div>
 
         <div id="grid-area" class="grid-wrapper">
+            <div id="search-msg" class="search-msg" style="display: none;">Digite algo para buscar rádios</div>
             <div class="multi-direction-grid" id="master-grid"></div>
         </div>
-
-        <div id="loading-trigger">Carregando Estações...</div>
     </div>
 
     <div id="player-view">
-        <img id="p-art" class="player-art" src="">
-        <div class="player-meta">
-            <h2 id="p-name">Selecionar Rádio</h2>
-            <p id="p-loc">Cidade, País</p>
-        </div>
+        <img id="p-art" class="player-art">
+        <h2 id="p-name">Nome da Rádio</h2>
+        <p id="p-loc" style="color:#888; margin-top:10px;">Localização</p>
     </div>
 
     <div class="apple-dock">
@@ -134,17 +91,14 @@
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span>Início</span>
         </div>
-
         <div class="nav-item" onclick="changeTab('lib', this)">
             <div id="badge-favs">0</div>
             <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
-            <span>Biblioteca</span>
+            <span>Música</span>
         </div>
-
         <div class="dock-play-btn" onclick="togglePlayback()">
             <svg viewBox="0 0 24 24" width="30"><path id="play-icon" fill="white" d="M8 5v14l11-7z"/></svg>
         </div>
-
         <div class="nav-item" onclick="changeTab('grid', this)">
             <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
             <span>Busca</span>
@@ -155,122 +109,119 @@
 
     <script>
         const audio = document.getElementById('audio-engine');
-        const carouselsArea = document.getElementById('carousels-area');
-        const masterGrid = document.getElementById('master-grid');
-        const badge = document.getElementById('badge-favs');
-        
-        let radioData = [];
+        const grid = document.getElementById('master-grid');
+        const searchInput = document.getElementById('input-busca');
+        const searchMsg = document.getElementById('search-msg');
+        let radioData = []; 
         let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
-        let offset = 0;
-        let isFetching = false;
-
         const placeholder = "https://via.placeholder.com/150/2c2c2e/fff?text=Radio";
 
-        async function loadRadios() {
-            if(isFetching) return;
-            isFetching = true;
-            try {
-                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=50&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
-                const data = await response.json();
-                
-                radioData = [...radioData, ...data];
-                
-                // Criar Categorias Dinâmicas (Simuladas por fatias de dados)
-                const categoryNames = ["Mais Ouvidas", "Top Ceará", "Pop & Rock", "Sertanejo", "Notícias"];
-                const currentCat = categoryNames[Math.floor(offset/50) % categoryNames.length];
-                
-                createCarousel(currentCat, data);
-                addToGrid(data);
-
-                offset += 50;
-            } catch (err) { console.error("Erro API", err); }
-            isFetching = false;
+        async function init() {
+            const res = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=100&hidebroken=true&order=clickcount&reverse=true`);
+            radioData = await res.json();
+            renderHome();
+            updateBadge();
         }
 
-        function createCarousel(title, list) {
-            const section = document.createElement('div');
-            section.className = 'section-container';
-            section.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
-            const scroll = section.querySelector('.horizontal-scroll');
+        function renderHome() {
+            const area = document.getElementById('carousels-area');
+            area.innerHTML = '';
+            const categorias = ["Mais Ouvidas", "Destaques"];
+            categorias.forEach((cat, i) => {
+                const section = document.createElement('div');
+                section.className = 'section-container';
+                section.innerHTML = `<div class="section-title">${cat}</div><div class="horizontal-scroll"></div>`;
+                const scroll = section.querySelector('.horizontal-scroll');
+                radioData.slice(i*20, (i+1)*20).forEach(r => scroll.appendChild(createCard(r)));
+                area.appendChild(section);
+            });
+        }
+
+        function executarBusca() {
+            const termo = searchInput.value.toLowerCase().trim();
+            grid.innerHTML = '';
             
-            list.forEach(radio => scroll.appendChild(createCard(radio)));
-            carouselsArea.appendChild(section);
-        }
+            if (termo === "") {
+                searchMsg.style.display = 'block';
+                return;
+            }
+            
+            searchMsg.style.display = 'none';
+            const filtrados = radioData.filter(r => 
+                r.name.toLowerCase().includes(termo) || 
+                (r.state && r.state.toLowerCase().includes(termo)) ||
+                (r.country && r.country.toLowerCase().includes(termo)) ||
+                (r.tags && r.tags.toLowerCase().includes(termo))
+            );
 
-        function addToGrid(list) {
-            list.forEach(radio => masterGrid.appendChild(createCard(radio)));
+            filtrados.forEach(r => grid.appendChild(createCard(r)));
         }
 
         function createCard(radio) {
             const isFav = favorites.some(f => f.stationuuid === radio.stationuuid);
             const el = document.createElement('div');
             el.className = 'card';
-            el.onclick = () => openRadioDetails(radio);
+            el.onclick = () => openPlayer(radio);
             el.innerHTML = `
                 <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
                     <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                 </div>
                 <img class="card-img" src="${radio.favicon || placeholder}" onerror="this.src='${placeholder}'">
                 <div class="card-info">${radio.name}</div>
+                <span class="card-loc">${radio.state || 'Brasil'}</span>
             `;
             return el;
         }
 
-        function openRadioDetails(radio) {
-            document.getElementById('p-art').src = radio.favicon || placeholder;
-            document.getElementById('p-name').innerText = radio.name;
-            document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
-            
-            document.getElementById('player-view').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'none';
-
-            if(audio.src !== radio.url_resolved) {
-                audio.src = radio.url_resolved;
-                audio.play();
-                updateIcon(true);
-            }
-        }
-
         function changeTab(mode, btn) {
-            // Reset UI
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('player-view').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
+            document.getElementById('search-bar-area').style.display = (mode === 'grid') ? 'block' : 'none';
 
             if(mode === 'home') {
-                carouselsArea.style.display = 'block';
+                document.getElementById('carousels-area').style.display = 'block';
                 document.getElementById('grid-area').style.display = 'none';
                 document.getElementById('page-title').innerText = "Rádios";
             } else if(mode === 'grid') {
-                carouselsArea.style.display = 'none';
+                document.getElementById('carousels-area').style.display = 'none';
                 document.getElementById('grid-area').style.display = 'block';
-                document.getElementById('page-title').innerText = "Explorar";
+                document.getElementById('page-title').innerText = "Busca";
+                executarBusca();
             } else if(mode === 'lib') {
-                carouselsArea.style.display = 'none';
+                document.getElementById('carousels-area').style.display = 'none';
                 document.getElementById('grid-area').style.display = 'block';
                 document.getElementById('page-title').innerText = "Biblioteca";
-                masterGrid.innerHTML = '';
-                favorites.forEach(f => masterGrid.appendChild(createCard(f)));
+                searchMsg.style.display = 'none';
+                grid.innerHTML = '';
+                favorites.forEach(f => grid.appendChild(createCard(f)));
             }
+        }
+
+        function openPlayer(radio) {
+            document.getElementById('p-art').src = radio.favicon || placeholder;
+            document.getElementById('p-name').innerText = radio.name;
+            document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
+            document.getElementById('player-view').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+            if(audio.src !== radio.url_resolved) { audio.src = radio.url_resolved; audio.play(); updateIcon(true); }
         }
 
         function toggleFav(e, uuid) {
             e.stopPropagation();
             const idx = favorites.findIndex(f => f.stationuuid === uuid);
             if(idx > -1) favorites.splice(idx, 1);
-            else {
-                const r = radioData.find(x => x.stationuuid === uuid);
-                if(r) favorites.push(r);
-            }
+            else { const r = radioData.find(x => x.stationuuid === uuid) || favorites.find(x => x.stationuuid === uuid); if(r) favorites.push(r); }
             localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
             e.currentTarget.classList.toggle('active');
             updateBadge();
         }
 
         function updateBadge() {
-            badge.innerText = favorites.length;
-            badge.style.display = favorites.length > 0 ? 'flex' : 'none';
+            const b = document.getElementById('badge-favs');
+            b.innerText = favorites.length;
+            b.style.display = favorites.length > 0 ? 'flex' : 'none';
         }
 
         function togglePlayback() {
@@ -279,17 +230,9 @@
             else { audio.pause(); updateIcon(false); }
         }
 
-        function updateIcon(playing) {
-            document.getElementById('play-icon').setAttribute('d', playing ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z");
-        }
+        function updateIcon(p) { document.getElementById('play-icon').setAttribute('d', p ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"); }
 
-        // Infinite Scroll
-        window.addEventListener('scroll', () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) loadRadios();
-        });
-
-        loadRadios();
-        updateBadge();
+        init();
     </script>
 </body>
 </html>

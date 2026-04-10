@@ -32,50 +32,52 @@
             font-weight: 800; 
         }
 
+        /* SEÇÃO FIXA SUPERIOR COM SOMBRA MÍNIMA */
         .section-mais-ouvidas { 
-            padding-bottom: 15px;
+            padding-bottom: 10px;
             background: var(--bg);
-            border-bottom: 1px solid var(--glass-border);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border-bottom: 0.5px solid var(--glass-border);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        
-        /* Capas pequenas para o Mais Ouvidas */
-        .section-mais-ouvidas .card { width: 95px; min-width: 95px; }
-        .section-mais-ouvidas .card-img { width: 95px; height: 95px; }
-        .section-mais-ouvidas .card-info { font-size: 10px; }
 
-        /* --- O PUXÃOZINHO PARA BAIXO ESTÁ AQUI --- */
+        /* PADRÃO ÚNICO DE TAMANHO PARA TODOS OS CARDS DO APP */
+        .card { 
+            width: 95px; min-width: 95px; background: #1c1c1e; border-radius: 12px; 
+            overflow: hidden; border: 0.5px solid #333; position: relative; flex-shrink: 0;
+        }
+        .card-img { width: 95px; height: 95px; object-fit: cover; display: block; background: #2c2c2e; }
+        .card-info { padding: 6px 4px; font-size: 10px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* --- O AJUSTE PARA O CONTEÚDO APARECER LOGO ABAIXO DO FIXO --- */
         #main-content-scroll { 
-            padding-top: 290px; /* Aumentei para "Destaques" aparecer livremente */
+            padding-top: 240px; 
             padding-bottom: 120px;
         }
 
-        .section-container { margin-bottom: 30px; width: 100%; }
-        .section-title { padding: 0 20px 12px; font-size: 20px; font-weight: 700; color: #fff; }
+        .section-container { margin-bottom: 25px; width: 100%; }
+        .section-title { padding: 0 20px 12px; font-size: 18px; font-weight: 700; color: #fff; }
         
         .horizontal-scroll { 
-            display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px; 
+            display: flex; overflow-x: auto; gap: 12px; padding: 0 20px 10px; 
             scrollbar-width: none; -ms-overflow-style: none; 
         }
         .horizontal-scroll::-webkit-scrollbar { display: none; }
-
-        /* Tamanho padrão para Destaques e Explorar Todas */
-        .card { 
-            width: 140px; min-width: 140px; background: #1c1c1e; border-radius: 14px; 
-            overflow: hidden; border: 0.5px solid #333; position: relative; flex-shrink: 0;
-        }
-        .card-img { width: 140px; height: 140px; object-fit: cover; display: block; background: #2c2c2e; }
-        .card-info { padding: 10px 8px; font-size: 12px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .fav-btn {
-            position: absolute; top: 6px; right: 6px; width: 30px; height: 30px;
+            position: absolute; top: 4px; right: 4px; width: 24px; height: 24px;
             background: rgba(0,0,0,0.6); border-radius: 50%; display: flex;
             align-items: center; justify-content: center; z-index: 10;
         }
-        .fav-btn svg { width: 18px; fill: #666; }
+        .fav-btn svg { width: 14px; fill: #666; }
         .fav-btn.active svg { fill: var(--yellow); }
 
-        .multi-direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 0 20px; }
+        /* GRID TAMBÉM PADRONIZADA EM 95PX */
+        .multi-direction-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); 
+            gap: 12px; 
+            padding: 0 20px; 
+        }
 
         /* PLAYER VIEW */
         #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 800; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
@@ -109,7 +111,7 @@
         <div id="grid-area">
             <div id="section-grid-title" class="section-title">Explorar Todas</div>
             <div class="multi-direction-grid" id="master-grid"></div>
-            <div id="loading-trigger">Carregando mais rádios...</div>
+            <div id="loading-trigger">Carregando...</div>
         </div>
     </div>
 
@@ -210,7 +212,7 @@
                 <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
                     <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                 </div>
-                <img class="card-img" src="${radio.favicon || placeholder}" loading="lazy" onerror="this.src='https://via.placeholder.com/140/2c2c2e/fff?text=Radio'">
+                <img class="card-img" src="${radio.favicon || placeholder}" loading="lazy" onerror="this.src='https://via.placeholder.com/95/2c2c2e/fff?text=Radio'">
                 <div class="card-info">${radio.name}</div>
             `;
             return el;
@@ -224,7 +226,7 @@
             document.getElementById('player-view').style.display = 'none';
             document.getElementById('main-content-scroll').style.display = 'block';
             document.getElementById('topo-fixo').style.display = (mode === 'home') ? 'block' : 'none';
-            document.getElementById('main-content-scroll').style.paddingTop = (mode === 'home') ? '290px' : '100px';
+            document.getElementById('main-content-scroll').style.paddingTop = (mode === 'home') ? '240px' : '100px';
 
             if(mode === 'home') {
                 document.getElementById('page-title').innerText = "Rádios";

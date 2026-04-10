@@ -1,212 +1,378 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rádios PRO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lamonie Radio PRO</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --card-bg: #121212;
+            --accent: #007AFF;     /* Azul iOS */
+            --text: #ffffff;
+            --text-secondary: #aaaaaa;
+        }
 
-<style>
-body{
-margin:0;
-background:#000;
-color:#fff;
-font-family:-apple-system;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
 
-/* HEADER */
-header{
-padding:20px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-}
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding-bottom: 90px;
+            overflow-x: hidden;
+        }
 
-/* SEÇÃO */
-.section{
-margin-top:10px;
-}
+        header {
+            padding: 50px 20px 15px;
+            text-align: center;
+            background: rgba(0,0,0,0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-.section h2{
-color:#0A84FF;
-font-size:14px;
-padding:10px 15px;
-}
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
 
-/* CARROSSEL */
-.carousel{
-display:flex;
-overflow-x:auto;
-gap:15px;
-padding:10px 15px;
-}
+        .section {
+            margin-bottom: 35px;
+        }
 
-.carousel::-webkit-scrollbar{display:none}
+        .section-header {
+            padding: 0 20px 12px;
+            color: var(--accent);
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-/* CARD */
-.card{
-min-width:110px;
-text-align:center;
-cursor:pointer;
-}
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            gap: 16px;
+            padding: 0 20px 20px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
 
-.thumb{
-width:110px;
-height:110px;
-border-radius:20px;
-overflow:hidden;
-background:#222;
-}
+        .carousel::-webkit-scrollbar {
+            display: none;
+        }
 
-.thumb img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
+        .radio-card {
+            min-width: 118px;
+            max-width: 118px;
+            text-align: center;
+            cursor: pointer;
+        }
 
-.card span{
-font-size:12px;
-color:#ccc;
-margin-top:5px;
-display:block;
-}
+        .thumb {
+            width: 118px;
+            height: 118px;
+            background: #1a1a1a;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            margin-bottom: 10px;
+        }
 
-/* PLAYER */
-.player{
-position:fixed;
-bottom:70px;
-left:10px;
-right:10px;
-background:#111;
-border-radius:20px;
-padding:10px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-button{
-background:#0A84FF;
-border:none;
-color:#fff;
-padding:10px;
-border-radius:50%;
-}
+        .radio-name {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.3;
+            color: white;
+            margin-bottom: 2px;
+        }
 
-/* TAB BAR */
-.tab{
-position:fixed;
-bottom:0;
-width:100%;
-height:70px;
-background:#111;
-display:flex;
-justify-content:space-around;
-align-items:center;
-}
+        .radio-freq {
+            font-size: 11.5px;
+            color: var(--text-secondary);
+        }
 
-.tab div{
-font-size:11px;
-color:#aaa;
-text-align:center;
-}
+        /* Modal */
+        #details-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.96);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-.active{
-color:#0A84FF;
-}
-</style>
+        .modal-content {
+            background: #111;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 380px;
+            padding: 30px 25px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        .big-img {
+            width: 180px;
+            height: 180px;
+            border-radius: 24px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-loc {
+            color: var(--accent);
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        .player-bar {
+            background: #1a1a1a;
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin: 25px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #222;
+            color: white;
+            border: 1px solid #333;
+        }
+
+        /* Tab Bar Moderna */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 85px;
+            background: rgba(0,0,0,0.95);
+            border-top: 0.5px solid #222;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            padding-bottom: 8px;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #888;
+            font-size: 10px;
+            gap: 4px;
+        }
+
+        .tab-item.active {
+            color: var(--accent);
+        }
+
+        .tab-item div {
+            font-size: 24px;
+        }
+    </style>
 </head>
-
 <body>
 
-<header>Rádios</header>
+    <header>
+        <h1>Rádios</h1>
+    </header>
 
-<div id="app"></div>
+    <!-- Seções conforme os prints -->
+    <div class="section">
+        <div class="section-header">TOP 15</div>
+        <div id="top-carousel" class="carousel"></div>
+    </div>
 
-<!-- PLAYER -->
-<div class="player">
-<span id="status">Parado</span>
-<button onclick="play()">▶️</button>
-</div>
+    <div class="section">
+        <div class="section-header">MPB Sugeridas</div>
+        <div id="mpb-carousel" class="carousel"></div>
+    </div>
 
-<!-- TAB -->
-<div class="tab">
-<div class="active">📻<br>Rádios</div>
-<div>⚽<br>Esportes</div>
-<div>⭐<br>Favoritos</div>
-<div>🔍<br>Buscar</div>
-<div>•••<br>Mais</div>
-</div>
+    <div class="section">
+        <div class="section-header">POP-ROCK Sugeridas</div>
+        <div id="poprock-carousel" class="carousel"></div>
+    </div>
 
-<audio id="audio"></audio>
+    <div class="section">
+        <div class="section-header">ROCK Sugeridas</div>
+        <div id="rock-carousel" class="carousel"></div>
+    </div>
 
-<script>
+    <div class="section">
+        <div class="section-header">SERTANEJO Sugeridas</div>
+        <div id="sertanejo-carousel" class="carousel"></div>
+    </div>
 
-const categorias = [
-{nome:"DANCE", filtro:"tag=dance"},
-{nome:"FORRÓ", filtro:"tag=forro"},
-{nome:"GOSPEL", filtro:"tag=gospel"},
-{nome:"HITS", filtro:"order=clickcount"}
-];
+    <!-- Modal de detalhes -->
+    <div id="details-modal">
+        <div class="modal-content">
+            <img id="m-img" src="" class="big-img">
+            <h2 id="m-title" class="modal-title"></h2>
+            <p id="m-loc" class="modal-loc"></p>
+            <p id="m-desc" style="color:#999; font-size:14px; line-height:1.4; margin-bottom:25px;"></p>
 
-let current = "";
+            <div class="player-bar">
+                <span id="status">Pronto para tocar</span>
+                <button onclick="app.togglePlay()" style="background:none;border:none;color:white;font-size:28px;">▶️</button>
+            </div>
 
-async function carregar(){
-const app = document.getElementById("app");
+            <audio id="audio-player" controls style="display:none;"></audio>
 
-for(let cat of categorias){
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="app.playMemory()">Memória</button>
+                <button class="btn btn-primary" onclick="app.closeDetails()">Fechar</button>
+            </div>
+        </div>
+    </div>
 
-const div = document.createElement("div");
-div.className="section";
+    <!-- Tab Bar -->
+    <nav class="tab-bar">
+        <div class="tab-item active"><div>📻</div><span>Rádios</span></div>
+        <div class="tab-item"><div>⚽</div><span>Esportes</span></div>
+        <div class="tab-item"><div>⭐</div><span>Favoritos</span></div>
+        <div class="tab-item"><div>🔍</div><span>Buscar</span></div>
+        <div class="tab-item"><div>⋯</div><span>Mais</span></div>
+    </nav>
 
-div.innerHTML = `<h2>${cat.nome} Sugeridas</h2><div class="carousel" id="${cat.nome}"></div>`;
-app.appendChild(div);
+    <script>
+        const app = {
+            memory: [],
+            currentStream: "",
 
-const res = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${cat.filtro}&limit=20&hidebroken=true`);
-const data = await res.json();
+            fetchRadios: async (params, containerId) => {
+                try {
+                    const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${params}&limit=20&hidebroken=true&order=clickcount&reverse=true`);
+                    const data = await response.json();
+                    app.renderRadios(data, containerId);
+                } catch (e) {
+                    console.error("Erro ao buscar rádios:", e);
+                }
+            },
 
-const car = div.querySelector(".carousel");
+            renderRadios: (data, containerId) => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
 
-data.forEach(r=>{
-if(!r.url_resolved.startsWith("http")) return;
+                data.forEach(radio => {
+                    const card = document.createElement('div');
+                    card.className = 'radio-card';
+                    card.onclick = () => app.openDetails(radio);
 
-const el = document.createElement("div");
-el.className="card";
+                    const logo = radio.favicon || 'https://via.placeholder.com/120?text=RADIO';
 
-el.innerHTML=`
-<div class="thumb">
-<img src="${r.favicon || 'https://via.placeholder.com/100'}">
-</div>
-<span>${r.name}</span>
-`;
+                    card.innerHTML = `
+                        <div class="thumb">
+                            <img src="${logo}" alt="${radio.name}">
+                        </div>
+                        <div class="radio-name">${radio.name}</div>
+                        <div class="radio-freq">${radio.state ? radio.state + ' - ' : ''}${radio.country || ''}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            },
 
-el.onclick = ()=>{
-current = r.url_resolved;
-document.getElementById("status").innerText = r.name;
-};
+            openDetails: (radio) => {
+                app.currentStream = radio.url_resolved || radio.url;
+                document.getElementById('m-img').src = radio.favicon || 'https://via.placeholder.com/180?text=RADIO';
+                document.getElementById('m-title').innerText = radio.name;
+                document.getElementById('m-loc').innerText = `${radio.state || ''} ${radio.country ? '- ' + radio.country : ''}`;
+                document.getElementById('m-desc').innerText = `Bitrate: ${radio.bitrate}kbps | Tags: ${radio.tags || 'Não informado'}`;
 
-car.appendChild(el);
-});
-}
-}
+                document.getElementById('details-modal').style.display = 'flex';
+                document.getElementById('status').innerText = "Pausado";
 
-function play(){
-const audio = document.getElementById("audio");
+                app.memory.push(radio);
+            },
 
-if(!current){
-alert("Escolha uma rádio");
-return;
-}
+            togglePlay: () => {
+                const player = document.getElementById('audio-player');
+                const status = document.getElementById('status');
 
-audio.src = current;
+                if (player.src !== app.currentStream) {
+                    player.src = app.currentStream;
+                }
 
-audio.play()
-.then(()=>document.getElementById("status").innerText="Tocando...")
-.catch(()=>document.getElementById("status").innerText="Erro ao tocar");
-}
+                if (player.paused) {
+                    player.play();
+                    status.innerText = "Tocando ao vivo...";
+                } else {
+                    player.pause();
+                    status.innerText = "Pausado";
+                }
+            },
 
-carregar();
+            closeDetails: () => {
+                document.getElementById('audio-player').pause();
+                document.getElementById('details-modal').style.display = 'none';
+            },
 
-</script>
+            playMemory: () => {
+                if (app.memory.length > 1) {
+                    const prev = app.memory[app.memory.length - 2];
+                    app.openDetails(prev);
+                } else {
+                    alert("Nenhuma rádio anterior na memória!");
+                }
+            },
 
+            init: () => {
+                // Top 15 (Brasil)
+                app.fetchRadios("country=Brazil", "top-carousel");
+
+                // MPB / Pop etc (você pode ajustar os parâmetros)
+                app.fetchRadios("country=Brazil&tag=mpb", "mpb-carousel");
+                app.fetchRadios("country=Brazil&tag=rock", "poprock-carousel");
+                app.fetchRadios("country=Brazil&tag=rock", "rock-carousel");
+                app.fetchRadios("country=Brazil&tag=sertanejo", "sertanejo-carousel");
+            }
+        };
+
+        app.init();
+    </script>
 </body>
 </html>

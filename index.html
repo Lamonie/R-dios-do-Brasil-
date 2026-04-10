@@ -7,141 +7,282 @@
     <style>
         :root { 
             --bg: #000; 
-            --apple-red: #ff2d55; /* O vermelho clássico da Apple */
-            --glass-border: rgba(255, 255, 255, 0.25);
+            --apple-red: #ff2d55;
+            --glass: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.22);
+            --yellow: #FFD700;
         }
         
-        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; }
-        body { background: var(--bg); color: white; padding-bottom: 180px; overflow-x: hidden; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: white; padding-bottom: 150px; overflow-x: hidden; }
 
-        header { padding: 60px 20px 10px; font-size: 32px; font-weight: 800; }
-
-        /* GRID E CARDS */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px 20px; }
-        .card { background: #1c1c1e; border-radius: 18px; overflow: hidden; border: 0.5px solid #333; position: relative; }
-        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
-        .card-name { padding: 10px; font-size: 12px; font-weight: 600; text-align: center; }
-
-        /* BARRA DOCK CRISTALINA */
-        .apple-dock-container {
-            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
-            width: 92%; max-width: 500px; height: 80px; z-index: 10000;
+        header { padding: 50px 20px 10px; font-size: 32px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* CATEGORIAS HORIZONTAIS */
+        .section-container { margin-bottom: 25px; }
+        .section-title { padding: 0 20px 12px; font-size: 18px; font-weight: 700; color: #fff; }
+        .horizontal-scroll { 
+            display: flex; overflow-x: auto; gap: 15px; padding: 0 20px; 
+            scrollbar-width: none; -ms-overflow-style: none;
         }
-        .glass-dock {
-            width: 100%; height: 100%; 
-            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+
+        /* CARDS QUADRADOS (1:1) */
+        .card { 
+            min-width: 120px; width: 120px; background: #1c1c1e; border-radius: 14px; 
+            overflow: hidden; border: 0.5px solid #333; position: relative; transition: 0.2s;
+        }
+        .card:active { transform: scale(0.95); }
+        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #2c2c2e; }
+        .card-info { padding: 8px; font-size: 11px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* GRID EXPANSIVO (4 DIREÇÕES) */
+        .main-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+            gap: 12px; padding: 0 20px; 
+        }
+
+        /* ESTRELA DE FAVORITOS */
+        .fav-star {
+            position: absolute; top: 5px; right: 5px; width: 26px; height: 26px;
+            background: rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            z-index: 5; border: 0.5px solid rgba(255,255,255,0.2);
+        }
+        .fav-star svg { width: 14px; fill: #555; transition: 0.3s; }
+        .fav-star.active svg { fill: var(--yellow); }
+
+        /* PÁGINA DE DETALHES (PLAYER) */
+        #player-view {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 11000; display: none; flex-direction: column;
+            align-items: center; padding: 60px 20px; text-align: center;
+        }
+        .full-art { width: 280px; height: 280px; border-radius: 20px; object-fit: cover; margin-bottom: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+
+        /* BARRA DOCK APPLE */
+        .apple-dock {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 450px; height: 75px; z-index: 10000;
+            background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
             backdrop-filter: blur(30px) saturate(210%); -webkit-backdrop-filter: blur(30px) saturate(210%);
-            border-radius: 40px; border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: space-around; padding: 0 10px;
+            border-radius: 35px; border: 1px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: space-around;
         }
 
-        /* LÓGICA DE CORES DOS BOTÕES */
-        .nav-item { 
-            display: flex; flex-direction: column; align-items: center; 
-            color: rgba(255,255,255,0.4); /* Cor padrão: Cinza apagado */
-            font-size: 10px; font-weight: 700; 
-            cursor: pointer; position: relative; flex: 1;
-            transition: color 0.3s ease;
+        .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #888; cursor: pointer; position: relative; }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: #888; transition: 0.3s; }
+        .nav-item span { font-size: 10px; font-weight: 700; }
+        
+        /* COR VERMELHA DINÂMICA */
+        .nav-item.active { color: var(--apple-red); }
+        .nav-item.active svg { fill: var(--apple-red); }
+
+        /* CONTADOR AMARELO */
+        #badge-lib {
+            position: absolute; top: -5px; right: 20%; background: var(--yellow); color: #000;
+            font-size: 10px; font-weight: 900; min-width: 18px; height: 18px; border-radius: 10px;
+            display: none; align-items: center; justify-content: center; padding: 0 4px;
         }
 
-        /* QUANDO ATIVO: TUDO FICA VERMELHO */
-        .nav-item.active { 
-            color: var(--apple-red) !important; 
-        }
-        .nav-item.active svg { 
-            fill: var(--apple-red) !important; 
-            filter: drop-shadow(0 0 8px rgba(255,45,85,0.3));
-        }
+        .play-btn { width: 55px; height: 55px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); }
 
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 5px; fill: rgba(255,255,255,0.4); transition: all 0.3s ease; }
-
-        /* CONTADOR AMARELO (SEMPRE VISÍVEL) */
-        #lib-counter {
-            position: absolute; top: -5px; right: 15%;
-            background: #FFD700; color: #000;
-            font-size: 10px; font-weight: 900;
-            min-width: 18px; height: 18px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            padding: 0 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            z-index: 11;
-        }
-
-        .play-trigger {
-            width: 62px; height: 62px; border-radius: 50%;
-            background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(0,0,0,0.4));
-            display: flex; align-items: center; justify-content: center;
-            border: 1px solid var(--glass-border);
-        }
+        /* LOADING */
+        #loader { text-align: center; padding: 20px; color: var(--apple-red); font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <header id="main-title">Rádios</header>
-    <div id="radio-grid" class="grid"></div>
+    <div id="home-screen">
+        <header>
+            <span id="header-text">Rádios</span>
+        </header>
 
-    <div class="apple-dock-container">
-        <div class="glass-dock">
-            
-            <div class="nav-item active" id="nav-home" onclick="activateNav(this, 'home')">
-                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                <span>INÍCIO</span>
+        <div class="section-container" id="section-top">
+            <div class="section-title">Destaques do Fenômeno</div>
+            <div class="horizontal-scroll" id="top-scroll"></div>
+        </div>
+
+        <div class="section-title">Explorar Todas</div>
+        <div id="main-grid" class="main-grid">
             </div>
+        <div id="loader">Carregando mais rádios...</div>
+    </div>
 
-            <div class="nav-item" id="nav-lib" onclick="activateNav(this, 'lib')">
-                <div id="lib-counter">0</div>
-                <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
-                <span>BIBLIOTECA</span>
-            </div>
-
-            <div class="play-trigger" onclick="togglePlayback()">
-                <svg viewBox="0 0 24 24" width="28"><path id="play-path" fill="white" d="M8 5v14l11-7z"/></svg>
-            </div>
-
-            <div class="nav-item" id="nav-search" onclick="activateNav(this, 'search')">
-                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                <span>BUSCA</span>
-            </div>
-
+    <div id="player-view">
+        <img id="player-art" class="full-art">
+        <h1 id="player-name" style="margin-bottom: 10px;">Nome da Rádio</h1>
+        <p id="player-loc" style="color: #888; margin-bottom: 40px;">Localização</p>
+        <div class="play-btn" style="width: 80px; height: 80px;" onclick="togglePlay()">
+            <svg viewBox="0 0 24 24" width="40"><path id="p-icon" fill="white" d="M8 5v14l11-7z"/></svg>
         </div>
     </div>
 
-    <audio id="audio-engine"></audio>
+    <div class="apple-dock">
+        <div class="nav-item active" id="btn-home" onclick="nav('home')">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>INÍCIO</span>
+        </div>
+        <div class="nav-item" id="btn-lib" onclick="nav('lib')">
+            <div id="badge-lib">0</div>
+            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
+            <span>BIBLIOTECA</span>
+        </div>
+        <div class="play-btn" onclick="togglePlay()">
+            <svg viewBox="0 0 24 24" width="30"><path id="dock-p-icon" fill="white" d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="nav-item" id="btn-search" onclick="nav('search')">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <span>BUSCA</span>
+        </div>
+    </div>
+
+    <audio id="main-audio"></audio>
 
     <script>
-        // Função para alternar a cor vermelha entre os botões
-        function activateNav(element, mode) {
-            // Remove 'active' de todos os botões
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
+        const audio = document.getElementById('main-audio');
+        const grid = document.getElementById('main-grid');
+        const topScroll = document.getElementById('top-scroll');
+        const badge = document.getElementById('badge-lib');
+        
+        let allRadios = [];
+        let favorites = JSON.parse(localStorage.getItem('bibiu_favs')) || [];
+        let offset = 0;
+        let limit = 40;
+        let loading = false;
+        let currentMode = 'home';
 
-            // Adiciona 'active' apenas no botão clicado
-            element.classList.add('active');
+        // CARREGAR RÁDIOS DA API (SCROLL INFINITO)
+        async function fetchRadios() {
+            if(loading) return;
+            loading = true;
+            try {
+                const res = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=${limit}&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
+                const data = await res.json();
+                allRadios = [...allRadios, ...data];
+                
+                if(offset === 0) renderCarrossel(data.slice(0, 10));
+                renderGrid(data);
+                
+                offset += limit;
+                loading = false;
+            } catch(e) { console.log("Erro API"); loading = false; }
+        }
 
-            // Executa a função de navegação
-            if(mode === 'search') {
-                doSearch();
-            } else {
-                go(mode);
+        function renderCarrossel(list) {
+            list.forEach(r => topScroll.innerHTML += createCard(r));
+        }
+
+        function renderGrid(list) {
+            list.forEach(r => grid.innerHTML += createCard(r));
+        }
+
+        function createCard(r) {
+            const isFav = favorites.some(f => f.stationuuid === r.stationuuid);
+            const img = r.favicon || 'https://via.placeholder.com/150/2c2c2e/fff?text=Lamoniê';
+            return `
+                <div class="card" onclick="openPlayer('${r.stationuuid}')">
+                    <div class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${r.stationuuid}')">
+                        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    </div>
+                    <img src="${img}" loading="lazy">
+                    <div class="card-info">${r.name}</div>
+                </div>
+            `;
+        }
+
+        // NAVEGAÇÃO E MODOS
+        function nav(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('btn-' + mode).classList.add('active');
+            document.getElementById('player-view').style.display = 'none';
+            document.getElementById('home-screen').style.display = 'block';
+
+            if(mode === 'lib') {
+                document.getElementById('header-text').innerText = "Biblioteca";
+                document.getElementById('section-top').style.display = 'none';
+                grid.innerHTML = '';
+                favorites.forEach(r => grid.innerHTML += createCard(r));
+                document.getElementById('loader').style.display = 'none';
+            } else if (mode === 'home') {
+                document.getElementById('header-text').innerText = "Rádios";
+                document.getElementById('section-top').style.display = 'block';
+                grid.innerHTML = '';
+                offset = 0;
+                allRadios = [];
+                fetchRadios();
+                document.getElementById('loader').style.display = 'block';
+            } else if (mode === 'search') {
+                const q = prompt("O que o fenômeno quer ouvir?");
+                if(q) {
+                    grid.innerHTML = '';
+                    const filtered = allRadios.filter(r => r.name.toLowerCase().includes(q.toLowerCase()));
+                    renderGrid(filtered);
+                }
             }
         }
 
-        // Simulação das funções existentes para não quebrar o código
-        function go(mode) {
-            document.getElementById('main-title').innerText = mode === 'home' ? "Rádios" : "Biblioteca";
-            // Aqui entra sua lógica de renderizar rádios ou favoritos
+        // PLAYER INTELIGENTE
+        function openPlayer(uuid) {
+            const r = allRadios.find(x => x.stationuuid === uuid) || favorites.find(x => x.stationuuid === uuid);
+            if(!r) return;
+            
+            document.getElementById('player-art').src = r.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=RADIO';
+            document.getElementById('player-name').innerText = r.name;
+            document.getElementById('player-loc').innerText = r.country + " - " + (r.state || "");
+            document.getElementById('player-view').style.display = 'flex';
+            document.getElementById('home-screen').style.display = 'none';
+
+            if(audio.src !== r.url_resolved) {
+                audio.src = r.url_resolved;
+                audio.play();
+                updateIcons(true);
+            }
         }
 
-        function doSearch() {
-            prompt("O que vamos ouvir hoje, fenômeno?");
+        function togglePlay() {
+            if(!audio.src) return;
+            if(audio.paused) { audio.play(); updateIcons(true); }
+            else { audio.pause(); updateIcons(false); }
         }
 
-        function togglePlayback() {
-            // Lógica do Play/Pause
+        function updateIcons(playing) {
+            const d = playing ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z";
+            document.getElementById('p-icon').setAttribute('d', d);
+            document.getElementById('dock-p-icon').setAttribute('d', d);
         }
 
-        // Atualiza o contador da biblioteca (Exemplo: 5 rádios)
-        document.getElementById('lib-counter').innerText = "5";
+        // FAVORITOS
+        function toggleFav(e, uuid) {
+            e.stopPropagation();
+            const idx = favorites.findIndex(f => f.stationuuid === uuid);
+            if(idx > -1) favorites.splice(idx, 1);
+            else {
+                const r = allRadios.find(x => x.stationuuid === uuid);
+                if(r) favorites.push(r);
+            }
+            localStorage.setItem('bibiu_favs', JSON.stringify(favorites));
+            updateBadge();
+            nav(currentMode);
+        }
+
+        function updateBadge() {
+            badge.innerText = favorites.length;
+            badge.style.display = favorites.length > 0 ? 'flex' : 'none';
+        }
+
+        // SCROLL INFINITO - MEMÓRIA DE ETAPAS
+        window.onscroll = () => {
+            if(currentMode !== 'home') return;
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                fetchRadios();
+            }
+        };
+
+        // INICIALIZAÇÃO
+        fetchRadios();
+        updateBadge();
+
     </script>
 </body>
 </html>

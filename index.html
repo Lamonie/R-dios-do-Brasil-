@@ -10,8 +10,18 @@
             --accent: #007AFF;
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background: var(--bg); color: white; padding-bottom: 90px; }
+        * { 
+            margin:0; 
+            padding:0; 
+            box-sizing:border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            padding-bottom: 20px; /* reduzido pois não tem mais tab bar */
+        }
 
         header {
             padding: 50px 20px 20px;
@@ -21,7 +31,10 @@
             background: rgba(0,0,0,0.95);
             z-index: 100;
         }
-        header h1 { font-size: 28px; font-weight: 700; }
+        header h1 { 
+            font-size: 28px; 
+            font-weight: 700; 
+        }
 
         .section { margin-bottom: 35px; }
         .section-header {
@@ -77,37 +90,69 @@
 
         /* Modal */
         #details-modal {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.96); z-index: 2000;
-            display: none; align-items: center; justify-content: center; padding: 20px;
+            position: fixed; 
+            top:0; left:0; 
+            width:100%; height:100%;
+            background: rgba(0,0,0,0.96); 
+            z-index: 2000;
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px;
         }
         .modal-content {
-            background: #111; border-radius: 28px; width: 100%; max-width: 380px;
-            padding: 30px 25px; text-align: center;
+            background: #111; 
+            border-radius: 28px; 
+            width: 100%; 
+            max-width: 380px;
+            padding: 30px 25px; 
+            text-align: center;
         }
-        .big-img { width: 190px; height: 190px; border-radius: 24px; margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(0,122,255,0.3); }
-        .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-        .modal-loc { color: var(--accent); font-size: 15px; margin-bottom: 20px; }
+        .big-img { 
+            width: 190px; 
+            height: 190px; 
+            border-radius: 24px; 
+            margin: 0 auto 20px; 
+            box-shadow: 0 10px 30px rgba(0,122,255,0.3); 
+        }
+        .modal-title { 
+            font-size: 22px; 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+        }
+        .modal-loc { 
+            color: var(--accent); 
+            font-size: 15px; 
+            margin-bottom: 20px; 
+        }
 
         .player-bar {
-            background: #1a1a1a; border-radius: 18px; padding: 16px 20px;
-            margin: 25px 0; display: flex; align-items: center; justify-content: space-between;
+            background: #1a1a1a; 
+            border-radius: 18px; 
+            padding: 16px 20px;
+            margin: 25px 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
         }
 
-        .btn-row { display: flex; gap: 12px; }
+        .btn-row { 
+            display: flex; 
+            gap: 12px; 
+        }
         .btn {
-            flex: 1; padding: 16px; border-radius: 16px; font-weight: 600; font-size: 15px; border: none; cursor: pointer;
+            flex: 1; 
+            padding: 16px; 
+            border-radius: 16px; 
+            font-weight: 600; 
+            font-size: 15px; 
+            border: none; 
+            cursor: pointer;
         }
-        .btn-primary { background: var(--accent); color: white; }
-
-        .tab-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 85px;
-            background: rgba(0,0,0,0.95); border-top: 0.5px solid #222;
-            display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: 8px;
+        .btn-primary { 
+            background: var(--accent); 
+            color: white; 
         }
-        .tab-item { display: flex; flex-direction: column; align-items: center; color: #888; font-size: 10px; gap: 4px; }
-        .tab-item.active { color: var(--accent); }
-        .tab-item div { font-size: 24px; }
     </style>
 </head>
 <body>
@@ -164,21 +209,11 @@
 
             <audio id="audio-player" controls style="display:none;"></audio>
 
-            <!-- Só o botão de fechar (sem memória) -->
             <div class="btn-row">
                 <button class="btn btn-primary" onclick="app.closeDetails()">Fechar</button>
             </div>
         </div>
     </div>
-
-    <!-- Tab Bar -->
-    <nav class="tab-bar">
-        <div class="tab-item active"><div>📻</div><span>Rádios</span></div>
-        <div class="tab-item"><div>⚽</div><span>Esportes</span></div>
-        <div class="tab-item"><div>⭐</div><span>Favoritos</span></div>
-        <div class="tab-item"><div>🔍</div><span>Buscar</span></div>
-        <div class="tab-item"><div>⋯</div><span>Mais</span></div>
-    </nav>
 
     <script>
         const app = {
@@ -225,14 +260,12 @@
             openDetails: (radio) => {
                 const newStream = radio.url_resolved || radio.url;
 
-                // Se for outra rádio, troca e começa a tocar automaticamente
                 if (newStream !== app.currentStream) {
                     app.currentStream = newStream;
                     app.audio.src = app.currentStream;
                     app.audio.play().catch(() => {});
                 }
 
-                // Abre o modal com as informações
                 document.getElementById('m-img').src = radio.favicon || 'https://via.placeholder.com/190/222/fff?text=📻';
                 document.getElementById('m-title').innerText = radio.name;
                 document.getElementById('m-loc').innerText = `${radio.state || ''} ${radio.country ? '- ' + radio.country : 'Brasil'}`;
@@ -254,7 +287,6 @@
             },
 
             closeDetails: () => {
-                // Só fecha o modal — NÃO para a rádio
                 document.getElementById('details-modal').style.display = 'none';
             },
 

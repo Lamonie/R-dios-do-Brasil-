@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lamoniê Flow - Glass Edition</title>
+    <title>Lamoniê Flow - Apple Inteligente</title>
     <style>
         :root { 
-            --bg: #000; 
-            --apple-dark: #1c1c1e;
-            --glass-bg: rgba(40, 40, 40, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --glow: rgba(255, 255, 255, 0.08);
+            --apple-red: #ff2d55; 
+            --glass: rgba(30, 30, 30, 0.75);
+            --border: rgba(255, 255, 255, 0.12);
         }
         
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; }
-        body { background: var(--bg); color: white; padding-bottom: 180px; overflow-x: hidden; }
+        body { background: #000; color: white; transition: background 0.5s; }
 
-        header { padding: 60px 20px 10px; font-size: 32px; font-weight: 800; }
-        .section-title { padding: 10px 20px; color: #007AFF; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        header { padding: 60px 20px 20px; font-size: 34px; font-weight: 800; }
 
-        /* GRID PREMIUM */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px 20px; }
-        .card { background: var(--apple-dark); border-radius: 18px; overflow: hidden; position: relative; border: 0.5px solid #333; }
+        /* GRID 2 COLUNAS */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
+        .card { background: #1c1c1e; border-radius: 12px; overflow: hidden; position: relative; border: 0.5px solid #333; }
         .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
         .card-name { padding: 10px; font-size: 13px; font-weight: 600; text-align: center; }
 
@@ -34,102 +31,102 @@
         /* PÁGINA DE DETALHES */
         #details-view {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 8000; display: none; flex-direction: column; align-items: center; padding-top: 80px;
+            background: #000; z-index: 8000; display: none; flex-direction: column; align-items: center; padding-top: 80px;
         }
-        .big-thumb { width: 85%; border-radius: 25px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); margin-bottom: 30px; }
-        .info-area { padding: 0 40px; text-align: center; }
-        .info-area h2 { font-size: 26px; margin-bottom: 12px; }
-        .info-area p { color: #888; font-size: 16px; line-height: 1.5; }
+        .big-thumb { width: 85%; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); margin-bottom: 30px; }
 
-        /* A BARRA DE VIDRO COM BRILHO (ESTILO BAZAART/APPLE) */
-        .apple-dock-container {
-            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
-            width: 94%; max-width: 450px; height: 85px; z-index: 10000;
+        /* INTELIGÊNCIA DAS BARRAS (APPLE DOCK) */
+        .dock-wrapper {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 480px; z-index: 10000;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* BARRA ESCONDIDA (SCROLL DOWN) */
+        .dock-wrapper.hide-dock { transform: translateX(-50%) translateY(120px); opacity: 0; }
+
+        .main-dock {
+            background: var(--glass); backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 40px; border: 1px solid var(--border);
             display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 12px; height: 80px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
         }
 
-        .glass-dock {
-            flex: 1; height: 100%; 
-            background: linear-gradient(135deg, var(--glass-bg), rgba(20, 20, 20, 0.6));
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border-radius: 45px; margin-right: 12px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 1px var(--glow);
-            display: flex; align-items: center; justify-content: space-around;
-            padding: 0 10px;
-        }
+        .nav-group { display: flex; gap: 5px; flex: 1; justify-content: space-around; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; color: #888; font-size: 10px; font-weight: 600; transition: 0.3s; }
+        .nav-btn.active { color: var(--apple-red); }
+        .nav-btn span { font-size: 24px; margin-bottom: 2px; }
 
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; font-size: 10px; font-weight: 600; cursor: pointer; transition: 0.3s; }
-        .nav-item.active { color: white; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-        .nav-item span { font-size: 26px; margin-bottom: 4px; }
-
-        /* BOTÃO DE PLAY CIRCULAR COM BRILHO */
-        .play-outer {
-            width: 85px; height: 85px; border-radius: 50%;
-            background: linear-gradient(135deg, #2c2c2e, #000);
-            border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.1);
-            cursor: pointer; position: relative;
-        }
-        .play-outer:active { transform: scale(0.95); }
-
-        /* BOTÃO BUSCA INDEPENDENTE */
-        .search-circle {
+        /* BOTÃO DE PLAY MODERNO (IMG_7866) */
+        .play-btn-apple {
             width: 65px; height: 65px; border-radius: 50%;
-            background: var(--glass-bg); backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
+            background: #1c1c1e; border: 1px solid var(--border);
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px; margin-left: 12px;
+            font-size: 26px; color: white; margin-left: 10px;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.05);
         }
+
+        /* BUSCA INDEPENDENTE */
+        .search-btn-apple {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center; font-size: 22px; margin-left: 8px;
+        }
+
     </style>
 </head>
 <body>
 
-    <header id="main-title">Rádios</header>
+    <header id="app-title">Rádios</header>
 
-    <div id="view-home">
-        <div class="section-title" id="sub-title">Fenômeno de Jaíbaras</div>
+    <div id="home-view">
         <div class="grid" id="radio-grid"></div>
     </div>
 
     <div id="details-view">
-        <img id="det-img" class="big-thumb" src="">
-        <div class="info-area">
-            <h2 id="det-name">Nome da Rádio</h2>
-            <p id="det-desc">Informações técnicas e localização da rádio ao vivo...</p>
+        <img id="det-img" class="big-thumb">
+        <h2 id="det-name"></h2>
+        <p id="det-desc" style="color:#888; padding: 20px; text-align:center;"></p>
+    </div>
+
+    <div class="dock-wrapper" id="dock">
+        <div class="main-dock">
+            <div class="nav-group">
+                <div class="nav-btn active" id="btn-home" onclick="nav('home')"><span>🏠</span>Início</div>
+                <div class="nav-btn" id="btn-lib" onclick="nav('lib')"><span>📚</span>Biblioteca</div>
+            </div>
+            
+            <div class="play-btn-apple" onclick="togglePlay()" id="master-play">▶️</div>
+            <div class="search-btn-apple" onclick="doSearch()">🔍</div>
         </div>
     </div>
 
-    <div class="apple-dock-container">
-        <div class="glass-dock">
-            <div class="nav-item active" id="nav-home" onclick="go('home')">
-                <span>🏠</span>Início
-            </div>
-            <div class="nav-item" id="nav-lib" onclick="go('lib')">
-                <span>📚</span>Biblioteca
-            </div>
-        </div>
-
-        <div class="play-outer" onclick="togglePlayback()">
-            <span id="btn-play-icon" style="font-size: 34px;">▶️</span>
-        </div>
-
-        <div class="search-circle" onclick="doSearch()">🔍</div>
-    </div>
-
-    <audio id="audio-engine"></audio>
+    <audio id="player-core"></audio>
 
     <script>
-        let allRadios = [];
-        let myFavs = JSON.parse(localStorage.getItem('bibiu_v4_favs')) || [];
-        const player = document.getElementById('audio-engine');
+        let allStations = [];
+        let myFavs = JSON.parse(localStorage.getItem('favs_v5')) || [];
+        const audio = document.getElementById('player-core');
+        const dock = document.getElementById('dock');
+        let lastScroll = 0;
+
+        // INTELIGÊNCIA DE ESCONDE-ESCONDE
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                dock.classList.add('hide-dock'); // Rola pra baixo, esconde a barra
+            } else {
+                dock.classList.remove('hide-dock'); // Rola pra cima, mostra a barra
+            }
+            lastScroll = currentScroll;
+        });
 
         async function init() {
             const r = await fetch('https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=80&hidebroken=true&order=clickcount&reverse=true');
-            allRadios = await r.json();
-            render(allRadios);
+            allStations = await r.json();
+            render(allStations);
         }
 
         function render(list) {
@@ -138,63 +135,62 @@
             list.forEach(r => {
                 const isF = myFavs.some(f => f.changeuuid === r.changeuuid);
                 grid.innerHTML += `
-                    <div class="card" onclick="openRadio('${r.changeuuid}')">
+                    <div class="card" onclick="play('${r.changeuuid}')">
                         <div class="star-fav" onclick="event.stopPropagation(); toggleFav('${r.changeuuid}')">
                             ${isF ? '⭐' : '☆'}
                         </div>
-                        <img src="${r.favicon || 'https://via.placeholder.com/300/1c1c1e/white?text=RADIO'}">
+                        <img src="${r.favicon || 'https://via.placeholder.com/200/1c1c1e/white?text=RADIO'}">
                         <div class="card-name">${r.name}</div>
                     </div>
                 `;
             });
         }
 
-        function openRadio(id) {
-            const r = allRadios.find(x => x.changeuuid === id) || myFavs.find(x => x.changeuuid === id);
-            document.getElementById('det-img').src = r.favicon || '';
+        function play(id) {
+            const r = allStations.find(x => x.changeuuid === id) || myFavs.find(x => x.changeuuid === id);
+            document.getElementById('det-img').src = r.favicon;
             document.getElementById('det-name').innerText = r.name;
-            document.getElementById('det-desc').innerText = `Rádio de ${r.state || 'Brasil'}. Qualidade: ${r.bitrate}kbps. Gênero: ${r.tags || 'Variado'}.`;
+            document.getElementById('det-desc').innerText = `Rádio de ${r.state || 'Brasil'}. Qualidade ${r.bitrate}kbps. Gênero: ${r.tags}`;
             
-            player.src = r.url_resolved;
-            player.play();
-            document.getElementById('btn-play-icon').innerText = '⏸️';
+            audio.src = r.url_resolved;
+            audio.play();
+            document.getElementById('master-play').innerText = '⏸️';
             document.getElementById('details-view').style.display = 'flex';
         }
 
-        function togglePlayback() {
-            if(!player.src) return;
-            if(player.paused) { player.play(); document.getElementById('btn-play-icon').innerText = '⏸️'; }
-            else { player.pause(); document.getElementById('btn-play-icon').innerText = '▶️'; }
+        function togglePlay() {
+            if(audio.paused) { audio.play(); document.getElementById('master-play').innerText = '⏸️'; }
+            else { audio.pause(); document.getElementById('master-play').innerText = '▶️'; }
         }
 
-        function toggleFav(id) {
-            const r = allRadios.find(x => x.changeuuid === id);
-            const idx = myFavs.findIndex(f => f.changeuuid === id);
-            if(idx > -1) myFavs.splice(idx, 1);
-            else myFavs.push(r);
-            localStorage.setItem('bibiu_v4_favs', JSON.stringify(myFavs));
-            render(allRadios);
-        }
-
-        function go(mode) {
+        function nav(mode) {
             document.getElementById('details-view').style.display = 'none';
             if(mode === 'home') {
-                document.getElementById('nav-home').classList.add('active');
-                document.getElementById('nav-lib').classList.remove('active');
-                document.getElementById('main-title').innerText = "Rádios";
-                render(allRadios);
+                document.getElementById('btn-home').classList.add('active');
+                document.getElementById('btn-lib').classList.remove('active');
+                document.getElementById('app-title').innerText = "Rádios";
+                render(allStations);
             } else {
-                document.getElementById('nav-lib').classList.add('active');
-                document.getElementById('nav-home').classList.remove('active');
-                document.getElementById('main-title').innerText = "Biblioteca";
+                document.getElementById('btn-lib').classList.add('active');
+                document.getElementById('btn-home').classList.remove('active');
+                document.getElementById('app-title').innerText = "Biblioteca";
                 render(myFavs);
             }
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
+        function toggleFav(id) {
+            const r = allStations.find(x => x.changeuuid === id);
+            const idx = myFavs.findIndex(f => f.changeuuid === id);
+            if(idx > -1) myFavs.splice(idx, 1);
+            else myFavs.push(r);
+            localStorage.setItem('favs_v5', JSON.stringify(myFavs));
+            render(allStations);
+        }
+
         function doSearch() {
-            const q = prompt("O que vamos ouvir hoje, fenômeno?");
-            if(q) render(allRadios.filter(r => r.name.toLowerCase().includes(q.toLowerCase())));
+            const q = prompt("Qual rádio o fenômeno quer ouvir?");
+            if(q) render(allStations.filter(r => r.name.toLowerCase().includes(q.toLowerCase())));
         }
 
         init();

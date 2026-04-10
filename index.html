@@ -66,10 +66,10 @@
         .nav-item.active svg { fill: var(--apple-red); }
         #badge-favs { position: absolute; top: -6px; right: 20%; background: var(--yellow); color: #000; font-size: 10px; font-weight: 900; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; padding: 0 4px; }
         
-        /* ESTILO DA MINIATURA NO DOCK */
+        /* MINIATURA NO BOTÃO CENTRAL */
         .dock-play-btn { width: 58px; height: 58px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); position: relative; overflow: hidden; }
-        #dock-thumb { position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; }
-        #play-icon { z-index: 2; filter: drop-shadow(0 0 4px rgba(0,0,0,0.5)); }
+        #dock-thumb { position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
+        #play-icon { z-index: 2; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
 
         #loading-trigger { height: 60px; display: flex; align-items: center; justify-content: center; color: var(--apple-red); font-weight: bold; padding-bottom: 100px; }
     </style>
@@ -102,7 +102,7 @@
     </div>
 
     <div class="apple-dock">
-        <div class="nav-item active" id="btn-nav-home" onclick="changeTab('home', this)">
+        <div class="nav-item active" onclick="changeTab('home', this)">
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span>Início</span>
         </div>
@@ -112,8 +112,8 @@
             <span>Biblioteca</span>
         </div>
         
-        <div class="dock-play-btn" onclick="handleDockClick()">
-            <img id="dock-thumb" src="" alt="thumb">
+        <div class="dock-play-btn" onclick="handleDockPlayClick()">
+            <img id="dock-thumb" src="">
             <svg viewBox="0 0 24 24" width="30"><path id="play-icon" fill="white" d="M8 5v14l11-7z"/></svg>
         </div>
 
@@ -140,7 +140,7 @@
         let offset = 0;
         let isFetching = false;
         let currentTab = 'home';
-        let currentRadioPlaying = null; // Guardar a rádio atual
+        let currentRadio = null; // Armazena a rádio que está tocando agora
 
         const placeholder = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
@@ -247,20 +247,22 @@
         }
 
         function openRadioDetails(radio) {
-            currentRadioPlaying = radio; // Armazena a rádio atual
-            document.getElementById('p-art').src = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
+            currentRadio = radio; // Guarda a rádio ativa
+            const art = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
+            
+            // Atualiza tela de detalhes
+            document.getElementById('p-art').src = art;
             document.getElementById('p-name').innerText = radio.name;
             document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
-            
-            // Atualiza a miniatura no Dock
-            dockThumb.src = radio.favicon || 'https://via.placeholder.com/140/2c2c2e/fff?text=Radio';
-            dockThumb.style.display = 'block';
-
             document.getElementById('player-view').style.display = 'flex';
             document.getElementById('main-content').style.display = 'none';
             
-            // Remove destaque dos botões da barra ao abrir o player
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            // Atualiza miniatura no Dock
+            dockThumb.src = art;
+            dockThumb.style.display = 'block';
+
+            // Inteligência para a tela de bloqueio do iPhone
+            updateMediaSession(radio);
 
             if(audio.src !== radio.url_resolved) { 
                 audio.src = radio.url_resolved; 
@@ -269,15 +271,32 @@
             }
         }
 
-        // Função inteligente para o botão central do Dock
-        function handleDockClick() {
-            if (!currentRadioPlaying) return;
+        // Função para mandar capinha e nome para a tela de bloqueio do iPhone
+        function updateMediaSession(radio) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: radio.name,
+                    artist: 'Lamoniê Flow - Premium',
+                    album: radio.state || radio.country,
+                    artwork: [
+                        { src: radio.favicon || '', sizes: '512x512', type: 'image/png' }
+                    ]
+                });
 
-            // Se o player estiver escondido, abre ele de novo
-            if (document.getElementById('player-view').style.display === 'none') {
-                openRadioDetails(currentRadioPlaying);
+                // Permite controlar play/pause pela tela de bloqueio
+                navigator.mediaSession.setActionHandler('play', () => { audio.play(); updateIcon(true); });
+                navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); updateIcon(false); });
+            }
+        }
+
+        // Função do botão central: se tocar na capinha volta pra rádio, se tocar no ícone pausa
+        function handleDockPlayClick() {
+            if(!currentRadio) return;
+            
+            // Se o usuário clicar na capinha pequena e o player estiver fechado, abre ele
+            if(document.getElementById('player-view').style.display === 'none') {
+                openRadioDetails(currentRadio);
             } else {
-                // Se já estiver no player, o botão funciona como Play/Pause
                 togglePlayback();
             }
         }

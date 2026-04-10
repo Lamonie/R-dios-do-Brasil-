@@ -8,92 +8,121 @@
         :root { 
             --bg: #000; 
             --apple-red: #ff2d55;
-            --glass-bright: rgba(255, 255, 255, 0.15);
+            --apple-blue: #007AFF;
+            --glass: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.25);
         }
         
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; }
         body { background: var(--bg); color: white; padding-bottom: 180px; overflow-x: hidden; }
 
-        header { padding: 60px 20px 10px; font-size: 32px; font-weight: 800; }
-        .section-title { padding: 10px 20px; color: #007AFF; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        header { padding: 60px 20px 10px; font-size: 32px; font-weight: 800; transition: 0.3s; }
 
-        /* GRID PREMIUM */
+        /* GRID E CARDS */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px 20px; }
         .card { background: #1c1c1e; border-radius: 18px; overflow: hidden; border: 0.5px solid #333; position: relative; }
         .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
-        .card-name { padding: 10px; font-size: 12px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-name { padding: 10px; font-size: 12px; font-weight: 600; text-align: center; }
 
-        /* A BARRA UNIFICADA CRISTALINA BRILHANTE */
+        /* ESTRELA DE FAVORITOS */
+        .fav-btn {
+            position: absolute; top: 8px; right: 8px;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.2); z-index: 10;
+        }
+        .fav-btn svg { width: 18px; height: 18px; fill: #555; transition: 0.3s; }
+        .fav-btn.active svg { fill: #FFD700; }
+
+        /* PÁGINA DE DETALHES (PLAYER CHEIO) */
+        #player-page {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 9000; display: none;
+            flex-direction: column; align-items: center; padding-top: 60px;
+            overflow-y: auto;
+        }
+        .full-art { width: 85%; aspect-ratio: 1/1; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); object-fit: cover; }
+        .full-info { width: 85%; margin-top: 30px; text-align: left; }
+        .full-title { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+        .full-desc { color: #888; line-height: 1.5; font-size: 16px; }
+
+        /* BARRA DOCK */
         .apple-dock-container {
             position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
             width: 92%; max-width: 500px; height: 80px; z-index: 10000;
         }
-
         .glass-dock {
             width: 100%; height: 100%; 
             background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
-            backdrop-filter: blur(35px) saturate(210%);
-            -webkit-backdrop-filter: blur(35px) saturate(210%);
-            border-radius: 40px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: space-around;
-            padding: 0 10px;
+            backdrop-filter: blur(30px) saturate(210%); -webkit-backdrop-filter: blur(30px) saturate(210%);
+            border-radius: 40px; border: 1px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: space-around; padding: 0 10px;
         }
 
         .nav-item { 
             display: flex; flex-direction: column; align-items: center; 
             color: rgba(255,255,255,0.5); font-size: 10px; font-weight: 700; 
-            cursor: pointer; transition: 0.3s; flex: 1;
+            cursor: pointer; position: relative; flex: 1;
         }
-        
         .nav-item.active { color: white; }
-        .nav-item.active svg { fill: var(--apple-red); filter: drop-shadow(0 0 5px rgba(255,45,85,0.4)); }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 5px; fill: rgba(255,255,255,0.5); transition: 0.3s; }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 5px; fill: currentColor; }
 
-        /* PLAY CENTRAL */
+        /* CONTADOR AMARELO NA BIBLIOTECA */
+        #lib-counter {
+            position: absolute; top: -5px; right: 15%;
+            background: #FFD700; color: #000;
+            font-size: 10px; font-weight: 900;
+            min-width: 18px; height: 18px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
         .play-trigger {
             width: 62px; height: 62px; border-radius: 50%;
             background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(0,0,0,0.4));
             display: flex; align-items: center; justify-content: center;
-            border: 1.5px solid var(--glass-border);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border: 1px solid var(--glass-border);
         }
-        .play-trigger svg { width: 28px; height: 28px; fill: white; }
-
     </style>
 </head>
 <body>
 
     <header id="main-title">Rádios</header>
+    
     <div id="view-home">
-        <div class="section-title">Fenômeno de Jaíbaras</div>
         <div id="radio-grid" class="grid"></div>
+    </div>
+
+    <div id="player-page">
+        <img id="p-art" class="full-art">
+        <div class="full-info">
+            <h1 id="p-title" class="full-title">Nome da Rádio</h1>
+            <p id="p-desc" class="full-desc">Descrição completa da rádio e informações de transmissão ao vivo diretamente de Jaíbaras para o mundo.</p>
+        </div>
     </div>
 
     <div class="apple-dock-container">
         <div class="glass-dock">
-            
-            <div class="nav-item active" id="nav-home" onclick="go('home')">
+            <div class="nav-item active" id="nav-home" onclick="smartHome()">
                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                 <span>INÍCIO</span>
             </div>
 
             <div class="nav-item" id="nav-lib" onclick="go('lib')">
+                <div id="lib-counter">0</div>
                 <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
                 <span>BIBLIOTECA</span>
             </div>
 
             <div class="play-trigger" onclick="togglePlayback()">
-                <svg viewBox="0 0 24 24"><path id="play-path" d="M8 5v14l11-7z"/></svg>
+                <svg viewBox="0 0 24 24" width="28"><path id="play-path" fill="white" d="M8 5v14l11-7z"/></svg>
             </div>
 
             <div class="nav-item" onclick="doSearch()">
                 <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                 <span>BUSCA</span>
             </div>
-
         </div>
     </div>
 
@@ -103,35 +132,80 @@
         const player = document.getElementById('audio-engine');
         const playPath = document.getElementById('play-path');
         let allRadios = [];
-        let myFavs = JSON.parse(localStorage.getItem('bibiu_favs')) || [];
+        let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
+        let currentPage = 'home';
 
-        // BUSCA AS RÁDIOS DA INTERNET NOVAMENTE
         async function init() {
             try {
                 const r = await fetch('https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=80&hidebroken=true&order=clickcount&reverse=true');
                 allRadios = await r.json();
+                updateCounter();
                 render(allRadios);
-            } catch(e) { console.log("Erro ao carregar"); }
+            } catch(e) { console.log("Erro"); }
         }
 
         function render(list) {
             const grid = document.getElementById('radio-grid');
             grid.innerHTML = '';
             list.forEach(r => {
+                const isFav = favorites.some(f => f.stationuuid === r.stationuuid);
                 grid.innerHTML += `
-                    <div class="card" onclick="playRadio('${r.url_resolved}', '${r.name}')">
-                        <img src="${r.favicon || 'https://via.placeholder.com/300/1c1c1e/white?text=RADIO'}">
-                        <div class="card-name">${r.name}</div>
+                    <div class="card">
+                        <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${r.stationuuid}')">
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        </div>
+                        <img src="${r.favicon || 'https://via.placeholder.com/300/1c1c1e/white?text=RADIO'}" onclick="openDetails('${r.stationuuid}')">
+                        <div class="card-name" onclick="openDetails('${r.stationuuid}')">${r.name}</div>
                     </div>
                 `;
             });
         }
 
-        function playRadio(url, name) {
-            player.src = url;
-            player.play();
-            playPath.setAttribute("d", "M6 19h4V5H6v14zm8-14v14h4V5h-4z");
-            document.getElementById('main-title').innerText = name;
+        // INTELIGÊNCIA DO BOTÃO INÍCIO
+        function smartHome() {
+            const playerPage = document.getElementById('player-page');
+            if (playerPage.style.display === 'flex') {
+                playerPage.style.display = 'none'; // Se estiver nos detalhes, volta pro grid
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' }); // Se já estiver no home, rola pro topo
+                go('home');
+            }
+        }
+
+        function openDetails(id) {
+            const r = allRadios.find(x => x.stationuuid === id);
+            if(!r) return;
+            document.getElementById('p-art').src = r.favicon || 'https://via.placeholder.com/300/1c1c1e/white?text=RADIO';
+            document.getElementById('p-title').innerText = r.name;
+            document.getElementById('p-desc').innerText = `Rádio: ${r.name}\nLocal: ${r.state || 'Brasil'}\nTags: ${r.tags || 'Música'}\n\nOuvindo agora no Lamoniê Flow - O fenômeno de Jaíbaras.`;
+            document.getElementById('player-page').style.display = 'flex';
+            
+            // Tocar automaticamente ao abrir detalhes
+            if(player.src !== r.url_resolved) {
+                player.src = r.url_resolved;
+                player.play();
+                playPath.setAttribute("d", "M6 19h4V5H6v14zm8-14v14h4V5h-4z");
+            }
+        }
+
+        function toggleFav(e, id) {
+            e.stopPropagation();
+            const index = favorites.findIndex(f => f.stationuuid === id);
+            if(index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                const r = allRadios.find(x => x.stationuuid === id);
+                favorites.push(r);
+            }
+            localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
+            updateCounter();
+            render(currentPage === 'home' ? allRadios : favorites);
+        }
+
+        function updateCounter() {
+            const counter = document.getElementById('lib-counter');
+            counter.innerText = favorites.length;
+            counter.style.display = favorites.length > 0 ? 'flex' : 'none';
         }
 
         function togglePlayback() {
@@ -146,6 +220,8 @@
         }
 
         function go(mode) {
+            currentPage = mode;
+            document.getElementById('player-page').style.display = 'none';
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(mode === 'home') {
                 document.getElementById('nav-home').classList.add('active');
@@ -154,7 +230,7 @@
             } else {
                 document.getElementById('nav-lib').classList.add('active');
                 document.getElementById('main-title').innerText = "Biblioteca";
-                render(myFavs);
+                render(favorites);
             }
         }
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF--8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lamoniê Flow - Apple Inteligente</title>
     <style>
@@ -138,6 +138,7 @@
 
         function play(id) {
             const r = allStations.find(x => x.changeuuid === id) || myFavs.find(x => x.changeuuid === id);
+            if (!r) return; // Rádio não encontrada
             document.getElementById('det-img').src = r.favicon;
             document.getElementById('det-name').innerText = r.name;
             document.getElementById('det-desc').innerText = \`Rádio de ${r.state || 'Brasil'}. Qualidade ${r.bitrate}kbps. Gênero: ${r.tags}\`;
@@ -149,27 +150,26 @@
         }
 
         function togglePlay() {
-            if(audio.paused) { audio.play(); document.getElementById('master-play').innerText = '⏸️'; }
-            else { audio.pause(); document.getElementById('master-play').innerText = '▶️'; }
+            if(audio.src){
+                if(audio.paused) { audio.play(); document.getElementById('master-play').innerText = '⏸️'; }
+                else { audio.pause(); document.getElementById('master-play').innerText = '▶️'; }
+            }
         }
 
         function nav(mode) {
             document.getElementById('details-view').style.display = 'none';
-            
-            // Desativa todos os botões
-            document.getElementById('btn-home').classList.remove('active');
-            document.getElementById('btn-radio').classList.remove('active');
-            document.getElementById('btn-lib').classList.remove('active');
-            
+            // Remove a classe 'active' de todos
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
             if(mode === 'home') {
                 document.getElementById('btn-home').classList.add('active');
                 document.getElementById('app-title').innerText = "Início";
-                render(allStations); // Como não há conteúdo específico para Início, exibe todas as estações
+                render(allStations);
             } else if (mode === 'radio') {
                 document.getElementById('btn-radio').classList.add('active');
                 document.getElementById('app-title').innerText = "Rádios";
                 render(allStations);
-            } else if (mode === 'lib') {
+            } else { // mode 'lib'
                 document.getElementById('btn-lib').classList.add('active');
                 document.getElementById('app-title').innerText = "Biblioteca";
                 render(myFavs);
@@ -179,13 +179,19 @@
 
         function toggleFav(id) {
             const r = allStations.find(x => x.changeuuid === id);
+            if (!r) return;
             const idx = myFavs.findIndex(f => f.changeuuid === id);
-            if(idx > -1) myFavs.splice(idx, 1);
-            else myFavs.push(r);
+
+            if(idx > -1) {
+                myFavs.splice(idx, 1);
+            } else {
+                myFavs.push(r);
+            }
             localStorage.setItem('favs_v5', JSON.stringify(myFavs));
-            // A renderização vai depender da aba ativa no momento
-            const activeNav = document.querySelector('.nav-btn.active').id;
-            if (activeNav === 'btn-lib') {
+
+            // Re-renderiza a lista da aba que estiver ativa
+            const activeNavId = document.querySelector('.nav-btn.active').id;
+            if (activeNavId === 'btn-lib') {
                 render(myFavs);
             } else {
                 render(allStations);
@@ -194,7 +200,10 @@
 
         function doSearch() {
             const q = prompt("Qual rádio o fenômeno quer ouvir?");
-            if(q) render(allStations.filter(r => r.name.toLowerCase().includes(q.toLowerCase())));
+            if(q) {
+                nav('radio'); // Muda para a aba de rádio para mostrar os resultados
+                render(allStations.filter(r => r.name.toLowerCase().includes(q.toLowerCase())));
+            }
         }
 
         init();

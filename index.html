@@ -1,83 +1,280 @@
-<style>
-    /* Estilo Premium e Correção de Visibilidade */
-    .content-section {
-        display: none; /* Esconde todas as seções por padrão */
-    }
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lamoniê Flow - Premium</title>
+    <style>
+        :root { 
+            --bg: #000; 
+            --apple-red: #ff2d55;
+            --glass: rgba(28, 28, 30, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --yellow: #FFD700;
+        }
+        
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: white; overflow-x: hidden; width: 100vw; }
 
-    .content-section.active {
-        display: block; /* Mostra apenas a seção marcada como ativa */
-    }
+        header { padding: 50px 20px 10px; font-size: 32px; font-weight: 800; background: var(--bg); position: sticky; top: 0; z-index: 100; }
 
-    /* Ajuste para a Biblioteca mostrar 2 itens por linha conforme sua regra */
-    .album-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); 
-        gap: 15px;
-        padding: 10px;
-    }
-
-    /* Garante que a barra de navegação esteja sempre no topo (Z-INDEX) */
-    .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        z-index: 9999 !important; /* Força ficar acima de qualquer capa de álbum */
-        background: rgba(15, 15, 15, 0.85);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Cor do botão quando acionado */
-    .nav-item.active {
-        color: #ff4b4b !important;
-    }
-
-    /* Estrela de favoritos */
-    .star-icon.favorited {
-        color: #ffcc00 !important;
-    }
-</style>
-
-<script>
-    // FUNÇÃO PARA TROCAR DE TELA (INÍCIO / BIBLIOTECA / BUSCA)
-    function showSection(sectionId, element) {
-        // 1. Remove a classe 'active' de todas as seções de conteúdo
-        document.querySelectorAll('.content-section').forEach(section => {
-            section.classList.remove('active');
-        });
-
-        // 2. Mostra a seção correta
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.add('active');
+        .search-container { padding: 10px 20px; position: sticky; top: 100px; z-index: 101; background: var(--bg); }
+        .search-input { 
+            width: 100%; padding: 12px 15px; border-radius: 12px; border: none; 
+            background: #1c1c1e; color: white; font-size: 16px; outline: none;
+            border: 1px solid var(--glass-border);
         }
 
-        // 3. Atualiza o estado visual dos botões na barra inferior
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        element.classList.add('active');
-        
-        // Rola para o topo ao trocar de aba
-        window.scrollTo(0, 0);
-    }
+        .skeleton { background: linear-gradient(90deg, #1c1c1e 25%, #2c2c2e 50%, #1c1c1e 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    // FUNÇÃO PARA FAVORITAR (ESTRELINHA)
-    function toggleFavorite(event, starElement) {
-        event.stopPropagation(); // Impede de abrir a rádio ao clicar na estrela
-        starElement.classList.toggle('favorited');
+        .section-container { margin-bottom: 25px; width: 100%; }
+        .section-title { padding: 0 20px 10px; font-size: 18px; font-weight: 700; color: #fff; }
         
-        if (starElement.classList.contains('favorited')) {
-            console.log("Adicionado aos favoritos");
-            // Aqui você pode adicionar a lógica para salvar no banco ou localstorage
+        .horizontal-scroll { 
+            display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px; 
+            scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth;
         }
-    }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
 
-    // GARANTE QUE A BARRA NÃO SUMA AO CLICAR NA CAPA
-    function openPlayer() {
-        // Sua lógica de abrir o álbum aqui...
-        // Importante: Não esconda o elemento '.bottom-nav' aqui.
-        document.querySelector('.bottom-nav').style.display = 'flex';
-    }
-</script>
+        .card { 
+            width: 140px; min-width: 140px; background: #1c1c1e; border-radius: 14px; 
+            overflow: hidden; border: 0.5px solid #333; position: relative; flex-shrink: 0;
+        }
+        .card-img { width: 140px; height: 140px; object-fit: cover; display: block; background: #2c2c2e; }
+        .card-info { padding: 10px 8px; font-size: 12px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .fav-btn {
+            position: absolute; top: 6px; right: 6px; width: 30px; height: 30px;
+            background: rgba(0,0,0,0.6); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; z-index: 10;
+        }
+        .fav-btn svg { width: 18px; fill: #666; }
+        .fav-btn.active svg { fill: var(--yellow); }
+
+        .grid-wrapper { width: 100vw; padding: 0 20px 120px; display: block; }
+        .multi-direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+
+        #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 800; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .player-art { width: 85%; max-width: 320px; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin-bottom: 40px; }
+
+        .apple-dock { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; height: 75px; z-index: 1000; background: var(--glass); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border-radius: 38px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-around; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #8e8e93; position: relative; }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: #8e8e93; }
+        .nav-item span { font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .nav-item.active { color: var(--apple-red); }
+        .nav-item.active svg { fill: var(--apple-red); }
+        #badge-favs { position: absolute; top: -6px; right: 20%; background: var(--yellow); color: #000; font-size: 10px; font-weight: 900; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; padding: 0 4px; }
+        .dock-play-btn { width: 58px; height: 58px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); }
+        #loading-trigger { height: 60px; display: flex; align-items: center; justify-content: center; color: var(--apple-red); font-weight: bold; padding-bottom: 100px; }
+    </style>
+</head>
+<body>
+
+    <div id="main-content">
+        <header id="page-title">Rádios</header>
+        
+        <div id="search-bar-area" class="search-container" style="display: none;">
+            <input type="text" id="input-busca" class="search-input" placeholder="Buscar rádio..." oninput="executarBusca()">
+        </div>
+
+        <div id="carousels-area"></div>
+
+        <div id="grid-area" class="grid-wrapper">
+            <div id="section-grid-title" class="section-title" style="padding: 20px 0;">Explorar Todas</div>
+            <div id="search-msg" style="text-align: center; padding: 20px; color: #666; display: none;">Digite algo para buscar</div>
+            <div class="multi-direction-grid" id="master-grid"></div>
+            <div id="loading-trigger">Carregando mais rádios...</div>
+        </div>
+    </div>
+
+    <div id="player-view">
+        <img id="p-art" class="player-art" src="">
+        <div class="player-meta">
+            <h2 id="p-name">Selecionar Rádio</h2>
+            <p id="p-loc">Cidade, País</p>
+        </div>
+    </div>
+
+    <div class="apple-dock">
+        <div class="nav-item active" onclick="changeTab('home', this)">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Início</span>
+        </div>
+        <div class="nav-item" onclick="changeTab('lib', this)">
+            <div id="badge-favs">0</div>
+            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
+            <span>Biblioteca</span>
+        </div>
+        <div class="dock-play-btn" onclick="togglePlayback()">
+            <svg viewBox="0 0 24 24" width="30"><path id="play-icon" fill="white" d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="nav-item" onclick="changeTab('grid', this)">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <span>Busca</span>
+        </div>
+    </div>
+
+    <audio id="audio-engine"></audio>
+
+    <script>
+        const audio = document.getElementById('audio-engine');
+        const carouselsArea = document.getElementById('carousels-area');
+        const masterGrid = document.getElementById('master-grid');
+        const badge = document.getElementById('badge-favs');
+        const searchInput = document.getElementById('input-busca');
+        const searchMsg = document.getElementById('search-msg');
+        const loadingTrigger = document.getElementById('loading-trigger');
+
+        let radioData = [];
+        let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
+        let offset = 0;
+        let isFetching = false;
+        let currentTab = 'home';
+        const placeholder = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
+        async function loadRadios() {
+            if(isFetching || currentTab !== 'home') return;
+            isFetching = true;
+            
+            try {
+                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=50&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
+                const data = await response.json();
+                
+                if (data.length > 0) {
+                    radioData = [...radioData, ...data];
+                    if(offset === 0) renderHome(data);
+                    else addToGrid(data);
+                    offset += 50;
+                }
+            } catch (err) { console.error(err); }
+            finally { isFetching = false; }
+        }
+
+        function renderHome(data) {
+            carouselsArea.innerHTML = '';
+            const frag = document.createDocumentFragment();
+            createCarousel("Mais Ouvidas", data.slice(0, 15), frag);
+            createCarousel("Destaques", data.slice(15, 30), frag);
+            carouselsArea.appendChild(frag);
+            addToGrid(data.slice(30));
+        }
+
+        function addToGrid(list) {
+            const frag = document.createDocumentFragment();
+            list.forEach(r => frag.appendChild(createCard(r)));
+            masterGrid.appendChild(frag);
+        }
+
+        function createCarousel(title, list, container) {
+            const section = document.createElement('div');
+            section.className = 'section-container';
+            section.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
+            const scroll = section.querySelector('.horizontal-scroll');
+            list.forEach(r => scroll.appendChild(createCard(r)));
+            container.appendChild(section);
+        }
+
+        function createCard(radio) {
+            const isFav = favorites.some(f => f.stationuuid === radio.stationuuid);
+            const el = document.createElement('div');
+            el.className = 'card';
+            el.onclick = () => openRadioDetails(radio);
+            el.innerHTML = `
+                <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
+                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                </div>
+                <img class="card-img skeleton" src="${radio.favicon || placeholder}" loading="lazy" onload="this.classList.remove('skeleton')" onerror="this.src='https://via.placeholder.com/140/2c2c2e/fff?text=Radio'">
+                <div class="card-info">${radio.name}</div>
+            `;
+            return el;
+        }
+
+        function changeTab(mode, btn) {
+            currentTab = mode;
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('player-view').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            
+            const searchArea = document.getElementById('search-bar-area');
+            const gridTitle = document.getElementById('section-grid-title');
+
+            if(mode === 'home') {
+                document.getElementById('page-title').innerText = "Rádios";
+                searchArea.style.display = 'none';
+                carouselsArea.style.display = 'block';
+                gridTitle.style.display = 'block';
+                loadingTrigger.style.display = 'flex';
+                masterGrid.innerHTML = '';
+                offset = 0; radioData = []; loadRadios();
+            } else if(mode === 'lib') {
+                document.getElementById('page-title').innerText = "Biblioteca";
+                searchArea.style.display = 'none';
+                carouselsArea.style.display = 'none';
+                gridTitle.style.display = 'none';
+                loadingTrigger.style.display = 'none';
+                masterGrid.innerHTML = '';
+                favorites.forEach(f => masterGrid.appendChild(createCard(f)));
+            } else if(mode === 'grid') {
+                document.getElementById('page-title').innerText = "Busca";
+                searchArea.style.display = 'block';
+                carouselsArea.style.display = 'none';
+                gridTitle.style.display = 'none';
+                loadingTrigger.style.display = 'none';
+                masterGrid.innerHTML = '';
+                searchMsg.style.display = 'block';
+            }
+        }
+
+        function executarBusca() {
+            const termo = searchInput.value.toLowerCase().trim();
+            masterGrid.innerHTML = '';
+            if (termo === "") { searchMsg.style.display = 'block'; return; }
+            searchMsg.style.display = 'none';
+            const filtrados = radioData.filter(r => r.name.toLowerCase().includes(termo));
+            addToGrid(filtrados);
+        }
+
+        function openRadioDetails(radio) {
+            document.getElementById('p-art').src = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
+            document.getElementById('p-name').innerText = radio.name;
+            document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
+            document.getElementById('player-view').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+            if(audio.src !== radio.url_resolved) { audio.src = radio.url_resolved; audio.play(); updateIcon(true); }
+        }
+
+        function toggleFav(e, uuid) {
+            e.stopPropagation();
+            const idx = favorites.findIndex(f => f.stationuuid === uuid);
+            if(idx > -1) favorites.splice(idx, 1);
+            else { const r = radioData.find(x => x.stationuuid === uuid); if(r) favorites.push(r); }
+            localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
+            e.currentTarget.classList.toggle('active');
+            updateBadge();
+            if(currentTab === 'lib') changeTab('lib', document.querySelectorAll('.nav-item')[1]);
+        }
+
+        function updateBadge() {
+            badge.innerText = favorites.length;
+            badge.style.display = favorites.length > 0 ? 'flex' : 'none';
+        }
+
+        function togglePlayback() {
+            if(!audio.src) return;
+            if(audio.paused) { audio.play(); updateIcon(true); }
+            else { audio.pause(); updateIcon(false); }
+        }
+
+        function updateIcon(p) { document.getElementById('play-icon').setAttribute('d', p ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"); }
+
+        window.onscroll = () => {
+            if (currentTab === 'home' && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) loadRadios();
+        };
+
+        loadRadios();
+        updateBadge();
+    </script>
+</body>
+</html>

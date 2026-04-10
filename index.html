@@ -16,52 +16,42 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; overflow-x: hidden; width: 100vw; }
 
-        /* HEADER TOTALMENTE FIXO NO TOPO */
+        /* HEADER E MAIS OUVIDAS - BLOCO TOTALMENTE TRAVADO NO TOPO */
+        .topo-fixo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 500;
+            background: var(--bg);
+        }
+
         header { 
             padding: 50px 20px 10px; 
             font-size: 32px; 
             font-weight: 800; 
-            background: var(--bg); 
-            position: fixed; 
-            top: 0; 
-            width: 100%;
-            z-index: 300; 
         }
 
-        /* --- CARROSSEL MAIS OUVIDAS AGORA É FIXED (TRAVADO MESMO) --- */
         .section-mais-ouvidas { 
-            position: fixed; 
-            top: 95px; /* Fica logo abaixo do header */
-            left: 0;
-            width: 100%;
-            z-index: 250; 
-            background: var(--bg); 
             padding-bottom: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.8); 
+            background: var(--bg);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
         
-        /* Capas menores apenas neste carrossel */
+        /* Capas pequenas para o Mais Ouvidas */
         .section-mais-ouvidas .card { width: 95px; min-width: 95px; }
         .section-mais-ouvidas .card-img { width: 95px; height: 95px; }
         .section-mais-ouvidas .card-info { font-size: 10px; }
 
-        /* ÁREA DE CONTEÚDO QUE ROLA */
-        #carousels-area { 
-            /* Empurra tudo para baixo para não começar escondido atrás do fixo */
-            padding-top: 250px; 
-            position: relative;
-            z-index: 1;
+        /* --- O PUXÃOZINHO PARA BAIXO ESTÁ AQUI --- */
+        #main-content-scroll { 
+            padding-top: 290px; /* Aumentei para "Destaques" aparecer livremente */
+            padding-bottom: 120px;
         }
 
-        .search-container { padding: 10px 20px; position: sticky; top: 100px; z-index: 101; background: var(--bg); }
-        .search-input { 
-            width: 100%; padding: 12px 15px; border-radius: 12px; border: none; 
-            background: #1c1c1e; color: white; font-size: 16px; outline: none;
-            border: 1px solid var(--glass-border);
-        }
-
-        .section-container { margin-bottom: 25px; width: 100%; }
-        .section-title { padding: 0 20px 10px; font-size: 18px; font-weight: 700; color: #fff; }
+        .section-container { margin-bottom: 30px; width: 100%; }
+        .section-title { padding: 0 20px 12px; font-size: 20px; font-weight: 700; color: #fff; }
         
         .horizontal-scroll { 
             display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px; 
@@ -69,6 +59,7 @@
         }
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
+        /* Tamanho padrão para Destaques e Explorar Todas */
         .card { 
             width: 140px; min-width: 140px; background: #1c1c1e; border-radius: 14px; 
             overflow: hidden; border: 0.5px solid #333; position: relative; flex-shrink: 0;
@@ -84,12 +75,13 @@
         .fav-btn svg { width: 18px; fill: #666; }
         .fav-btn.active svg { fill: var(--yellow); }
 
-        .grid-wrapper { width: 100vw; padding: 0 20px 120px; display: block; position: relative; z-index: 1; }
-        .multi-direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .multi-direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 0 20px; }
 
+        /* PLAYER VIEW */
         #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 800; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .player-art { width: 85%; max-width: 320px; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin-bottom: 40px; }
 
+        /* DOCK */
         .apple-dock { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; height: 75px; z-index: 1000; background: var(--glass); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border-radius: 38px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-around; }
         .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #8e8e93; position: relative; }
         .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: #8e8e93; }
@@ -102,23 +94,20 @@
         #dock-thumb { position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
         #play-icon { z-index: 2; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
 
-        #loading-trigger { height: 60px; display: flex; align-items: center; justify-content: center; color: var(--apple-red); font-weight: bold; padding-bottom: 100px; }
+        #loading-trigger { height: 60px; display: flex; align-items: center; justify-content: center; color: var(--apple-red); font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="main-content">
+    <div class="topo-fixo" id="topo-fixo">
         <header id="page-title">Rádios</header>
-        
-        <div id="search-bar-area" class="search-container" style="display: none;">
-            <input type="text" id="input-busca" class="search-input" placeholder="Buscar rádio..." oninput="executarBusca()">
-        </div>
+        <div id="container-mais-ouvidas"></div>
+    </div>
 
+    <div id="main-content-scroll">
         <div id="carousels-area"></div>
-
-        <div id="grid-area" class="grid-wrapper">
-            <div id="section-grid-title" class="section-title" style="padding: 20px 0;">Explorar Todas</div>
-            <div id="search-msg" style="text-align: center; padding: 20px; color: #666; display: none;">Digite algo para buscar</div>
+        <div id="grid-area">
+            <div id="section-grid-title" class="section-title">Explorar Todas</div>
             <div class="multi-direction-grid" id="master-grid"></div>
             <div id="loading-trigger">Carregando mais rádios...</div>
         </div>
@@ -161,10 +150,8 @@
         const carouselsArea = document.getElementById('carousels-area');
         const masterGrid = document.getElementById('master-grid');
         const badge = document.getElementById('badge-favs');
-        const searchInput = document.getElementById('input-busca');
-        const searchMsg = document.getElementById('search-msg');
-        const loadingTrigger = document.getElementById('loading-trigger');
         const dockThumb = document.getElementById('dock-thumb');
+        const topoMaisOuvidas = document.getElementById('container-mais-ouvidas');
 
         let radioData = [];
         let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
@@ -192,12 +179,9 @@
         }
 
         function renderHome(data) {
+            topoMaisOuvidas.innerHTML = '';
             carouselsArea.innerHTML = '';
-            
-            // 1. Criar o carrossel fixo de Mais Ouvidas primeiro
-            createCarousel("Mais Ouvidas", data.slice(0, 15), carouselsArea, true); 
-            
-            // 2. Criar os outros carrosséis que vão rolar
+            createCarousel("Mais Ouvidas", data.slice(0, 15), topoMaisOuvidas, true); 
             createCarousel("Destaques", data.slice(15, 30), carouselsArea, false);
             addToGrid(data.slice(30));
         }
@@ -214,13 +198,7 @@
             section.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
             const scroll = section.querySelector('.horizontal-scroll');
             list.forEach(r => scroll.appendChild(createCard(r)));
-            
-            // Se for o fixo, ele vai direto no main-content para não ser afetado pelo padding do container
-            if(isMaisOuvidas) {
-                document.getElementById('main-content').insertBefore(section, carouselsArea);
-            } else {
-                container.appendChild(section);
-            }
+            container.appendChild(section);
         }
 
         function createCard(radio) {
@@ -242,20 +220,18 @@
             currentTab = mode;
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(btn) btn.classList.add('active');
-            document.getElementById('player-view').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
             
-            const maisOuvidas = document.querySelector('.section-mais-ouvidas');
+            document.getElementById('player-view').style.display = 'none';
+            document.getElementById('main-content-scroll').style.display = 'block';
+            document.getElementById('topo-fixo').style.display = (mode === 'home') ? 'block' : 'none';
+            document.getElementById('main-content-scroll').style.paddingTop = (mode === 'home') ? '290px' : '100px';
 
             if(mode === 'home') {
                 document.getElementById('page-title').innerText = "Rádios";
-                carouselsArea.style.display = 'block';
-                if(maisOuvidas) maisOuvidas.style.display = 'block';
                 offset = 0; radioData = []; loadRadios();
             } else {
                 document.getElementById('page-title').innerText = mode === 'lib' ? "Biblioteca" : "Busca";
-                carouselsArea.style.display = 'none';
-                if(maisOuvidas) maisOuvidas.style.display = 'none';
+                carouselsArea.innerHTML = '';
                 masterGrid.innerHTML = '';
                 if(mode === 'lib') favorites.forEach(f => masterGrid.appendChild(createCard(f)));
             }
@@ -268,7 +244,7 @@
             document.getElementById('p-name').innerText = radio.name;
             document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
             document.getElementById('player-view').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'none';
+            
             dockThumb.src = art;
             dockThumb.style.display = 'block';
             updateMediaSession(radio);
@@ -288,8 +264,11 @@
 
         function handleDockPlayClick() {
             if(!currentRadio) return;
-            if(document.getElementById('player-view').style.display === 'none') openRadioDetails(currentRadio);
-            else togglePlayback();
+            if(document.getElementById('player-view').style.display === 'none') {
+                document.getElementById('player-view').style.display = 'flex';
+            } else {
+                togglePlayback();
+            }
         }
 
         function toggleFav(e, uuid) {

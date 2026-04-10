@@ -99,7 +99,6 @@
             flex: 1; padding: 16px; border-radius: 16px; font-weight: 600; font-size: 15px; border: none; cursor: pointer;
         }
         .btn-primary { background: var(--accent); color: white; }
-        .btn-secondary { background: #222; color: white; border: 1px solid #333; }
 
         .tab-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: 85px;
@@ -165,8 +164,8 @@
 
             <audio id="audio-player" controls style="display:none;"></audio>
 
+            <!-- Só o botão de fechar (sem memória) -->
             <div class="btn-row">
-                <button class="btn btn-secondary" onclick="app.playMemory()">Memória</button>
                 <button class="btn btn-primary" onclick="app.closeDetails()">Fechar</button>
             </div>
         </div>
@@ -183,8 +182,12 @@
 
     <script>
         const app = {
-            memory: [],
             currentStream: "",
+            audio: null,
+
+            initAudio: function() {
+                this.audio = document.getElementById('audio-player');
+            },
 
             fetchRadios: async (params, containerId) => {
                 try {
@@ -220,50 +223,43 @@
             },
 
             openDetails: (radio) => {
-                app.currentStream = radio.url_resolved || radio.url;
+                const newStream = radio.url_resolved || radio.url;
+
+                // Se for outra rádio, troca e começa a tocar automaticamente
+                if (newStream !== app.currentStream) {
+                    app.currentStream = newStream;
+                    app.audio.src = app.currentStream;
+                    app.audio.play().catch(() => {});
+                }
+
+                // Abre o modal com as informações
                 document.getElementById('m-img').src = radio.favicon || 'https://via.placeholder.com/190/222/fff?text=📻';
                 document.getElementById('m-title').innerText = radio.name;
                 document.getElementById('m-loc').innerText = `${radio.state || ''} ${radio.country ? '- ' + radio.country : 'Brasil'}`;
                 document.getElementById('m-desc').innerText = `Bitrate: ${radio.bitrate || '?'}kbps | Tags: ${radio.tags || 'Não informado'}`;
 
                 document.getElementById('details-modal').style.display = 'flex';
-                document.getElementById('status').innerText = "Pausado";
-
-                if (!app.memory.some(r => r.stationuuid === radio.stationuuid)) {
-                    app.memory.push(radio);
-                }
+                document.getElementById('status').innerText = app.audio.paused ? "Pausado" : "Tocando ao vivo...";
             },
 
             togglePlay: () => {
-                const player = document.getElementById('audio-player');
                 const status = document.getElementById('status');
-                if (player.src !== app.currentStream) player.src = app.currentStream;
-
-                if (player.paused) {
-                    player.play();
+                if (app.audio.paused) {
+                    app.audio.play();
                     status.innerText = "Tocando ao vivo...";
                 } else {
-                    player.pause();
+                    app.audio.pause();
                     status.innerText = "Pausado";
                 }
             },
 
             closeDetails: () => {
-                document.getElementById('audio-player').pause();
+                // Só fecha o modal — NÃO para a rádio
                 document.getElementById('details-modal').style.display = 'none';
             },
 
-            playMemory: () => {
-                if (app.memory.length > 1) {
-                    const prev = app.memory[app.memory.length - 2];
-                    app.openDetails(prev);
-                } else {
-                    alert("Nenhuma rádio anterior na memória!");
-                }
-            },
-
             init: () => {
-                // MUITO MAIS RÁDIOS agora
+                app.initAudio();
                 app.fetchRadios("country=Brazil&order=clickcount&reverse=true&limit=20", "top-carousel");
                 app.fetchRadios("country=Brazil&tag=mpb&limit=15", "mpb-carousel");
                 app.fetchRadios("country=Brazil&tag=sertanejo&limit=15", "sertanejo-carousel");

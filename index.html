@@ -5,300 +5,199 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lamonie Radio PRO</title>
     <style>
-        :root { --bg: #000000; --accent: #007AFF; }
+        :root { --bg: #000000; --accent: #ff2d55; --orange: #ff8c00; }
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
         
-        body { background: var(--bg); color: white; padding-bottom: 110px; min-height: 100vh; }
+        body { background: var(--bg); color: white; padding-bottom: 150px; min-height: 100vh; overflow-x: hidden; }
         
-        header {
-            padding: 50px 20px 20px;
-            text-align: center;
-            position: sticky; top: 0;
-            background: rgba(0,0,0,0.95); z-index: 100;
-        }
-        header h1 { font-size: 28px; font-weight: 700; }
+        header { padding: 50px 20px 20px; text-align: left; }
+        header h1 { font-size: 34px; font-weight: 800; color: white; }
 
-        .section { margin-bottom: 40px; }
-        .section-header {
-            padding: 0 20px 12px;
-            color: var(--accent);
-            font-size: 15px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
+        .section { margin-bottom: 30px; }
+        .section-header { padding: 0 20px 12px; color: #007AFF; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .carousel {
-            display: flex;
-            overflow-x: auto;
-            gap: 16px;
-            padding: 0 20px 20px;
-            scroll-behavior: smooth;
-        }
+        .carousel { display: flex; overflow-x: auto; gap: 16px; padding: 0 20px 20px; scroll-behavior: smooth; }
         .carousel::-webkit-scrollbar { display: none; }
 
-        .radio-card {
-            min-width: 130px;
-            cursor: pointer;
-            text-align: center;
-        }
-        .thumb {
-            width: 130px; height: 130px;
-            border-radius: 20px;
-            overflow: hidden;
-            background: #1a1a1a;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-            margin-bottom: 10px;
-        }
+        .radio-card { min-width: 140px; cursor: pointer; }
+        .thumb { width: 140px; height: 140px; border-radius: 12px; overflow: hidden; background: #1a1a1a; margin-bottom: 8px; border: 0.5px solid #333; }
         .thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .radio-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .radio-name { font-size: 13.5px; font-weight: 600; line-height: 1.3; margin-bottom: 3px; }
-        .radio-info { font-size: 11.5px; color: #aaaaaa; }
-
-        .loading { color: #666; font-style: italic; padding: 10px 20px; }
-
-        /* Barra Glass - apenas botões atualizados */
-        .bottom-bar {
-            position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
-            height: 68px; max-width: 380px; width: calc(100% - 24px);
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(20px);
-            border-radius: 9999px;
-            border: 1px solid rgba(255,255,255,0.18);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            display: none; align-items: center; padding: 0 12px; z-index: 1000;
+        /* --- NOVA BARRA DE PLAYER (CÁPSULA DE VIDRO) --- */
+        .bottom-player {
+            position: fixed; bottom: 100px; left: 12px; right: 12px;
+            height: 64px; background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px); border-radius: 18px;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            display: none; align-items: center; justify-content: space-between;
+            padding: 0 15px; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .bottom-bar.show { display: flex; }
+        .bottom-player.show { display: flex; }
+        .p-info { display: flex; align-items: center; gap: 10px; max-width: 70%; }
+        .p-info img { width: 44px; height: 44px; border-radius: 8px; }
+        .p-text { overflow: hidden; }
+        .p-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-controls { display: flex; gap: 18px; }
+        .icon-btn { width: 28px; height: 28px; cursor: pointer; }
 
-        .home-btn {
-            width: 52px; height: 52px;
-            background: radial-gradient(circle, #FF2D55, #C41E3A);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(255,45,85,0.4);
-            flex-shrink: 0;
-        }
-        .home-btn::after {
-            content: '';
-            width: 28px; height: 28px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27white%27><path d=%27M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z%27/></svg>') center/contain no-repeat;
+        /* --- NOVA TAB BAR (BOTÕES DAS IMAGENS) --- */
+        .tab-bar-container {
+            position: fixed; bottom: 25px; left: 0; width: 100%;
+            display: flex; justify-content: center; align-items: center;
+            gap: 10px; padding: 0 15px; z-index: 2000;
         }
 
-        .player-info { flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 12px; cursor: pointer; }
-        .player-info img { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; }
-        .player-text .title { font-size: 15px; font-weight: 600; }
-        .player-text .subtitle { font-size: 12px; color: #aaaaaa; }
-
-        .play-btn {
-            width: 52px; height: 52px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            color: white;
-            flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        .main-nav {
+            background: rgba(25, 25, 25, 0.9); backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px); border-radius: 35px;
+            border: 0.5px solid #333; height: 65px; flex: 1;
+            display: flex; align-items: center; justify-content: space-around;
+            padding: 0 10px;
         }
 
-        .search-btn {
-            width: 52px; height: 52px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            color: white;
-            flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex: 1; }
+        .nav-item img { width: 26px; height: 26px; object-fit: contain; }
+        .nav-item span { font-size: 10px; font-weight: 600; color: #fff; }
+        
+        /* Destaque para Biblioteca conforme imagem */
+        .nav-item.active { 
+            background: rgba(255, 45, 85, 0.15); 
+            border-radius: 25px; height: 50px; justify-content: center;
+            color: #ff2d55;
         }
+        .nav-item.active span { color: #ff2d55; }
 
-        /* Modal (sem alterações) */
+        .search-circle {
+            width: 65px; height: 65px; background: rgba(25, 25, 25, 0.9);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: 50%; border: 0.5px solid #333;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .search-circle img { width: 26px; height: 26px; }
+
+        /* Modal */
         #details-modal {
             position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.96); z-index: 2000;
-            display: none; align-items: center; justify-content: center; padding: 20px;
+            background: rgba(0,0,0,0.98); z-index: 3000;
+            display: none; align-items: center; justify-content: center;
         }
-        .modal-content {
-            background: #111; border-radius: 28px; width: 100%; max-width: 380px;
-            padding: 30px 25px; text-align: center;
-        }
-        .big-img { width: 190px; height: 190px; border-radius: 24px; margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(0,122,255,0.3); }
-        .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-        .modal-loc { color: var(--accent); font-size: 15px; margin-bottom: 20px; }
-
-        .player-bar { background: #1a1a1a; border-radius: 18px; padding: 16px 20px; margin: 25px 0; display: flex; align-items: center; justify-content: space-between; }
-        .btn { flex: 1; padding: 16px; border-radius: 16px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; }
-        .btn-primary { background: var(--accent); color: white; }
+        .modal-content { text-align: center; padding: 20px; width: 100%; }
+        .big-img { width: 280px; height: 280px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
     </style>
 </head>
 <body>
 
     <header><h1>Rádios</h1></header>
 
-    <!-- Suas seções (sem alteração) -->
-    <div class="section">
-        <div class="section-header">TOP 15 BRASIL</div>
-        <div id="top-carousel" class="carousel"><div class="loading">Carregando rádios...</div></div>
+    <div id="content">
+        <div class="section"><div class="section-header">TOP 15 BRASIL</div><div id="top-carousel" class="carousel"></div></div>
+        <div class="section"><div class="section-header">FORRÓ SUGERIDAS</div><div id="forro-carousel" class="carousel"></div></div>
+        <div class="section"><div class="section-header">SERTANEJO SUGERIDAS</div><div id="sertanejo-carousel" class="carousel"></div></div>
     </div>
 
-    <div class="section">
-        <div class="section-header">MPB SUGERIDAS</div>
-        <div id="mpb-carousel" class="carousel"><div class="loading">Carregando rádios...</div></div>
-    </div>
-
-    <div class="section">
-        <div class="section-header">SERTANEJO SUGERIDAS</div>
-        <div id="sertanejo-carousel" class="carousel"><div class="loading">Carregando rádios...</div></div>
-    </div>
-
-    <div class="section">
-        <div class="section-header">FORRÓ SUGERIDAS</div>
-        <div id="forro-carousel" class="carousel"><div class="loading">Carregando rádios...</div></div>
-    </div>
-
-    <div class="section">
-        <div class="section-header">ROCK SUGERIDAS</div>
-        <div id="rock-carousel" class="carousel"><div class="loading">Carregando rádios...</div></div>
-    </div>
-
-    <div class="section">
-        <div class="section-header">GOSPEL SUGERIDAS</div>
-        <div id="gospel-carousel" class="carousel"><div class="loading">Carregando rádios...</div></div>
-    </div>
-
-    <div class="section">
-        <div class="section-header">POP HITS SUGERIDAS</div>
-        <div id="pop-carousel" class="carousel"><div class="loading">Carregando rádios...</div></div>
-    </div>
-
-    <!-- Barra inferior com seus novos botões -->
-    <div class="bottom-bar" id="bottom-bar">
-        <div class="home-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})"></div>
-        
-        <div class="player-info" onclick="app.showDetails()">
-            <img id="bar-logo" src="https://via.placeholder.com/48/222/fff?text=📻" alt="">
-            <div class="player-text">
-                <div class="title" id="bar-title">Nenhuma rádio tocando</div>
-                <div class="subtitle" id="bar-subtitle">Toque em uma rádio acima</div>
+    <div class="bottom-player" id="bottom-bar">
+        <div class="p-info" onclick="app.showDetails()">
+            <img id="bar-logo" src="">
+            <div class="p-text">
+                <div id="bar-title" class="p-title">Selecione uma rádio</div>
+                <div style="font-size: 11px; color: var(--orange);">Ao Vivo</div>
             </div>
         </div>
-
-        <div class="play-btn" id="bar-play-btn" onclick="app.togglePlay()">▶️</div>
-        
-        <div class="search-btn" onclick="alert('🔍 Busca em breve')">🔍</div>
+        <div class="p-controls">
+            <img id="btn-play-icon" src="https://cdn-icons-png.flaticon.com/512/175/175681.png" class="icon-btn" style="filter:invert(1)" onclick="app.togglePlay()">
+            <img src="https://cdn-icons-png.flaticon.com/512/175/175683.png" class="icon-btn" style="filter:invert(1)">
+        </div>
     </div>
 
-    <!-- Modal (sem alteração) -->
+    <div class="tab-bar-container">
+        <nav class="main-nav">
+            <div class="nav-item" onclick="location.reload()">
+                <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png" style="filter:invert(1)">
+                <span>Início</span>
+            </div>
+            <div class="nav-item">
+                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384061.png" style="filter:invert(1)">
+                <span>Rádio</span>
+            </div>
+            <div class="nav-item active">
+                <img src="https://cdn-icons-png.flaticon.com/512/3503/3503813.png" style="filter:hue-rotate(300deg)">
+                <span>Biblioteca</span>
+            </div>
+        </nav>
+        <div class="search-circle">
+            <img src="https://cdn-icons-png.flaticon.com/512/54/54481.png" style="filter:invert(1)">
+        </div>
+    </div>
+
     <div id="details-modal">
         <div class="modal-content">
-            <img id="m-img" src="" class="big-img" onerror="this.src='https://via.placeholder.com/190/222/fff?text=📻';">
-            <h2 id="m-title" class="modal-title"></h2>
-            <p id="m-loc" class="modal-loc"></p>
-            <p id="m-desc" style="color:#999; font-size:14px; line-height:1.4; margin:20px 0;"></p>
-
-            <div class="player-bar">
-                <span id="status">Pronto para tocar</span>
-                <button onclick="app.togglePlay()" style="background:none;border:none;color:white;font-size:28px;">▶️</button>
-            </div>
-
-            <audio id="audio-player" controls style="display:none;"></audio>
-
-            <div class="btn-row">
-                <button class="btn btn-primary" onclick="app.closeDetails()">Fechar</button>
-            </div>
+            <img id="m-img" class="big-img">
+            <h2 id="m-title" style="font-size: 24px; margin-bottom: 10px;"></h2>
+            <p id="m-loc" style="color: var(--orange); margin-bottom: 30px;"></p>
+            <button onclick="app.closeDetails()" style="background:#333; color:white; border:none; padding:15px 40px; border-radius:25px; font-weight:700;">FECHAR</button>
         </div>
     </div>
+
+    <audio id="audio-player"></audio>
 
     <script>
         const app = {
-            currentStream: "",
+            audio: document.getElementById('audio-player'),
             currentRadio: null,
-            audio: null,
-
-            initAudio: function() {
-                this.audio = document.getElementById('audio-player');
-            },
 
             fetchRadios: async function(params, containerId) {
                 const container = document.getElementById(containerId);
-                try {
-                    const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${params}&hidebroken=true&limit=12`);
-                    const data = await response.json();
-                    container.innerHTML = '';
-                    data.forEach(radio => {
-                        const card = document.createElement('div');
-                        card.className = 'radio-card';
-                        card.onclick = () => this.openDetails(radio);
-
-                        const logo = radio.favicon || 'https://via.placeholder.com/130/222/fff?text=📻';
-                        card.innerHTML = `
-                            <div class="thumb"><img src="${logo}" alt="${radio.name}" onerror="this.src='https://via.placeholder.com/130/222/fff?text=📻';"></div>
-                            <div class="radio-name">${radio.name}</div>
-                            <div class="radio-info">${radio.state ? radio.state + ' - ' : ''}${radio.country || 'Brasil'}</div>
-                        `;
-                        container.appendChild(card);
-                    });
-                } catch (e) {
-                    container.innerHTML = '<div class="loading">Erro ao carregar. Atualize a página.</div>';
-                }
+                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${params}&hidebroken=true&limit=10`);
+                const data = await response.json();
+                data.forEach(radio => {
+                    const card = document.createElement('div');
+                    card.className = 'radio-card';
+                    card.onclick = () => this.playRadio(radio);
+                    card.innerHTML = `
+                        <div class="thumb"><img src="${radio.favicon || 'https://via.placeholder.com/140/222/fff?text=RADIO'}"></div>
+                        <div class="radio-name">${radio.name}</div>
+                    `;
+                    container.appendChild(card);
+                });
             },
 
-            openDetails: function(radio) {
+            playRadio: function(radio) {
                 this.currentRadio = radio;
-                const newStream = radio.url_resolved || radio.url;
-                if (newStream !== this.currentStream) {
-                    this.currentStream = newStream;
-                    this.audio.src = this.currentStream;
-                    this.audio.play().catch(() => {});
-                }
-
-                document.getElementById('m-img').src = radio.favicon || 'https://via.placeholder.com/190/222/fff?text=📻';
-                document.getElementById('m-title').innerText = radio.name;
-                document.getElementById('m-loc').innerText = `${radio.state || ''} ${radio.country ? '- ' + radio.country : 'Brasil'}`;
-                document.getElementById('m-desc').innerText = `Bitrate: ${radio.bitrate || '?'}kbps`;
-
-                document.getElementById('details-modal').style.display = 'flex';
-                this.updateBottomBar();
-            },
-
-            updateBottomBar: function() {
-                const bar = document.getElementById('bottom-bar');
-                bar.classList.add('show');
-                document.getElementById('bar-logo').src = this.currentRadio.favicon || 'https://via.placeholder.com/48/222/fff?text=📻';
-                document.getElementById('bar-title').innerText = this.currentRadio.name;
-                document.getElementById('bar-subtitle').innerText = "Ao Vivo";
+                this.audio.src = radio.url_resolved;
+                this.audio.play();
+                document.getElementById('bottom-bar').classList.add('show');
+                document.getElementById('bar-logo').src = radio.favicon || '';
+                document.getElementById('bar-title').innerText = radio.name;
+                document.getElementById('btn-play-icon').src = "https://cdn-icons-png.flaticon.com/512/175/175681.png"; // Pausa
             },
 
             togglePlay: function() {
-                if (this.audio.paused) this.audio.play();
-                else this.audio.pause();
+                if (this.audio.paused) {
+                    this.audio.play();
+                    document.getElementById('btn-play-icon').src = "https://cdn-icons-png.flaticon.com/512/175/175681.png";
+                } else {
+                    this.audio.pause();
+                    document.getElementById('btn-play-icon').src = "https://cdn-icons-png.flaticon.com/512/175/175680.png";
+                }
             },
 
             showDetails: function() {
-                if (this.currentRadio) document.getElementById('details-modal').style.display = 'flex';
+                if(!this.currentRadio) return;
+                document.getElementById('m-img').src = this.currentRadio.favicon || '';
+                document.getElementById('m-title').innerText = this.currentRadio.name;
+                document.getElementById('m-loc').innerText = this.currentRadio.country;
+                document.getElementById('details-modal').style.display = 'flex';
             },
 
-            closeDetails: function() {
-                document.getElementById('details-modal').style.display = 'none';
-            },
+            closeDetails: function() { document.getElementById('details-modal').style.display = 'none'; },
 
             init: function() {
-                this.initAudio();
-                this.fetchRadios("country=Brazil&order=clickcount&reverse=true", "top-carousel");
-                this.fetchRadios("country=Brazil&tag=mpb", "mpb-carousel");
-                this.fetchRadios("country=Brazil&tag=sertanejo", "sertanejo-carousel");
-                this.fetchRadios("country=Brazil&tag=forro", "forro-carousel");
-                this.fetchRadios("country=Brazil&tag=rock", "rock-carousel");
-                this.fetchRadios("country=Brazil&tag=gospel", "gospel-carousel");
-                this.fetchRadios("country=Brazil&tag=pop", "pop-carousel");
+                this.fetchRadios("country=Brazil&order=clickcount", "top-carousel");
+                this.fetchRadios("tag=forro", "forro-carousel");
+                this.fetchRadios("tag=sertanejo", "sertanejo-carousel");
             }
         };
-
         app.init();
     </script>
 </body>

@@ -3,71 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lamoniê Flow - Versão Premium</title>
+    <title>Lamoniê Flow - Crystal Edition</title>
     <style>
         :root { 
             --apple-red: #ff2d55; 
-            --glass-bg: rgba(30, 30, 30, 0.5);
-            --glass-border: rgba(255, 255, 255, 0.12);
+            /* Vidro mais transparente e brilhante */
+            --crystal-bg: rgba(255, 255, 255, 0.15);
+            --crystal-border: rgba(255, 255, 255, 0.4);
+            --glow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 4px rgba(255,255,255,0.3);
         }
         
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; }
-        body { background: #000; color: white; padding-bottom: 180px; overflow-x: hidden; }
+        body { background: #000; color: white; padding-bottom: 120px; overflow-x: hidden; }
 
         header { padding: 60px 20px 10px; font-size: 34px; font-weight: 800; letter-spacing: -1px; }
 
-        /* GRID 2 COLUNAS */
+        /* GRID */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
         .card { background: #1c1c1e; border-radius: 20px; overflow: hidden; position: relative; border: 0.5px solid #333; }
         .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
 
-        /* A BARRA IGUAL DA IMAGEM - SEM ÍCONES FEIOS */
-        .apple-dock-fixed {
-            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
-            width: 94%; max-width: 480px; height: 85px; z-index: 10000;
-            display: flex; align-items: center; justify-content: space-between;
+        /* BARRA DE VIDRO UNIFICADA - CRYSTAL DESIGN */
+        .unified-crystal-bar {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 500px; height: 75px; z-index: 10000;
+            background: var(--crystal-bg);
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border-radius: 35px;
+            border: 1px solid var(--crystal-border);
+            box-shadow: var(--glow);
+            display: flex; align-items: center; justify-content: space-around;
+            padding: 0 15px;
             transition: transform 0.4s ease, opacity 0.4s ease;
         }
 
-        .apple-dock-fixed.hide { transform: translateX(-50%) translateY(130px); opacity: 0; }
+        .unified-crystal-bar.hide { transform: translateX(-50%) translateY(120px); opacity: 0; }
 
-        .glass-main {
-            flex: 1; height: 100%; 
-            background: var(--glass-bg);
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border-radius: 45px; margin-right: 12px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.08);
-            display: flex; align-items: center; justify-content: space-around;
-            padding: 0 10px;
-        }
-
-        .nav-link { 
+        /* BOTÕES AVANÇADOS */
+        .btn-adv {
             display: flex; flex-direction: column; align-items: center; 
-            color: #888; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; letter-spacing: 0.5px;
+            color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 700; 
+            cursor: pointer; transition: 0.2s; text-transform: uppercase;
         }
-        .nav-link.active { color: var(--apple-red); }
-
-        /* BOTÃO PLAY (O CORAÇÃO DA BARRA) */
-        .play-btn-master {
-            width: 80px; height: 80px; border-radius: 50%;
-            background: linear-gradient(145deg, #252525, #000);
-            border: 1px solid var(--glass-border);
+        .btn-adv.active { color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        
+        /* BOTÃO PLAY/PAUSE INTEGRADO */
+        .play-pause-btn {
+            background: rgba(255,255,255,0.1);
+            width: 55px; height: 55px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-            cursor: pointer;
+            border: 1px solid var(--crystal-border);
+            font-size: 22px; color: white;
+            transition: 0.2s;
         }
-
-        /* BUSCA CIRCULAR */
-        .search-btn-master {
-            width: 65px; height: 65px; border-radius: 50%;
-            background: var(--glass-bg); backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: center;
-            margin-left: 10px;
-        }
+        .play-pause-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
 
         #player-view {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -84,39 +74,40 @@
     </div>
 
     <div id="player-view">
-        <img id="player-img" style="width: 85%; border-radius: 25px; box-shadow: 0 30px 60px rgba(0,0,0,0.7);">
-        <h2 id="player-title" style="margin-top: 30px; font-size: 24px;"></h2>
+        <img id="player-img" style="width: 85%; border-radius: 25px;">
+        <h2 id="player-title" style="margin-top: 30px;"></h2>
     </div>
 
-    <div class="apple-dock-fixed" id="dock-bar">
-        <div class="glass-main">
-            <div class="nav-link active" id="link-home" onclick="changeTab('home')">Início</div>
-            <div class="nav-link" id="link-lib" onclick="changeTab('lib')">Biblioteca</div>
+    <nav class="unified-crystal-bar" id="crystal-bar">
+        <div class="btn-adv active" id="btn-home" onclick="changeTab('home')">
+            Início
         </div>
 
-        <div class="play-btn-master" onclick="toggleAudio()">
-            <span id="p-label" style="font-size: 28px;">▶️</span>
+        <div class="play-pause-btn" onclick="toggleAudio()" id="main-action">
+            <span id="p-icon">▶️</span>
         </div>
 
-        <div class="search-btn-master" onclick="openSearch()">🔍</div>
-    </div>
+        <div class="btn-adv" onclick="openSearch()">
+            Buscar
+        </div>
+    </nav>
 
     <audio id="core-audio"></audio>
 
     <script>
         let dbRadios = [];
-        let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
+        let favorites = JSON.parse(localStorage.getItem('lamonie_v6')) || [];
         const audio = document.getElementById('core-audio');
-        const dock = document.getElementById('dock-bar');
+        const bar = document.getElementById('crystal-bar');
         let lastPos = 0;
 
-        // EFEITO ESCONDE-ESCONDE
+        // INTELIGÊNCIA ESCONDE-ESCONDE
         window.onscroll = () => {
             let currentPos = window.pageYOffset;
-            if (currentPos > lastPos && currentPos > 120) {
-                dock.classList.add('hide');
+            if (currentPos > lastPos && currentPos > 100) {
+                bar.classList.add('hide');
             } else {
-                dock.classList.remove('hide');
+                bar.classList.remove('hide');
             }
             lastPos = currentPos;
         };
@@ -139,36 +130,27 @@
             const r = dbRadios.find(x => x.changeuuid === id) || favorites.find(x => x.changeuuid === id);
             audio.src = r.url_resolved;
             audio.play();
-            document.getElementById('p-label').innerText = '⏸️';
+            document.getElementById('p-icon').innerText = '⏸️';
             document.getElementById('player-img').src = r.favicon;
             document.getElementById('player-title').innerText = r.name;
             document.getElementById('player-view').style.display = 'flex';
             
-            // Lógica de biblioteca (salva automático se quiser)
             if(!favorites.some(f => f.changeuuid === r.changeuuid)) {
                 favorites.push(r);
-                localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
+                localStorage.setItem('lamonie_v6', JSON.stringify(favorites));
             }
         }
 
         function toggleAudio() {
-            if(audio.paused) { audio.play(); document.getElementById('p-label').innerText = '⏸️'; }
-            else { audio.pause(); document.getElementById('p-label').innerText = '▶️'; }
+            if(!audio.src) return;
+            if(audio.paused) { audio.play(); document.getElementById('p-icon').innerText = '⏸️'; }
+            else { audio.pause(); document.getElementById('p-icon').innerText = '▶️'; }
         }
 
         function changeTab(tab) {
             document.getElementById('player-view').style.display = 'none';
-            if(tab === 'home') {
-                document.getElementById('link-home').classList.add('active');
-                document.getElementById('link-lib').classList.remove('active');
-                document.getElementById('header-text').innerText = "Rádios";
-                show(dbRadios);
-            } else {
-                document.getElementById('link-lib').classList.add('active');
-                document.getElementById('link-home').classList.remove('active');
-                document.getElementById('header-text').innerText = "Biblioteca";
-                show(favorites);
-            }
+            document.getElementById('header-text').innerText = "Rádios";
+            show(dbRadios);
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 

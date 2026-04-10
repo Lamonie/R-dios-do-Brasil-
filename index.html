@@ -16,33 +16,42 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; overflow-x: hidden; width: 100vw; }
 
-        /* Título fixo no topo */
+        /* HEADER TOTALMENTE FIXO NO TOPO */
         header { 
             padding: 50px 20px 10px; 
             font-size: 32px; 
             font-weight: 800; 
             background: var(--bg); 
-            position: sticky; 
+            position: fixed; 
             top: 0; 
-            z-index: 200; 
+            width: 100%;
+            z-index: 300; 
         }
 
-        /* --- CARROSSEL MAIS OUVIDAS TOTALMENTE TRAVADO --- */
+        /* --- CARROSSEL MAIS OUVIDAS AGORA É FIXED (TRAVADO MESMO) --- */
         .section-mais-ouvidas { 
-            position: sticky; 
-            top: 95px; /* Trava logo abaixo do nome "Rádios" */
-            z-index: 150; 
+            position: fixed; 
+            top: 95px; /* Fica logo abaixo do header */
+            left: 0;
+            width: 100%;
+            z-index: 250; 
             background: var(--bg); 
-            padding-bottom: 10px;
-            /* Sombra leve para dar efeito de profundidade quando o resto passa por baixo */
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
+            padding-bottom: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8); 
         }
         
-        /* Capas menores e fixas apenas neste carrossel */
-        .section-mais-ouvidas .card { width: 90px; min-width: 90px; }
-        .section-mais-ouvidas .card-img { width: 90px; height: 90px; }
+        /* Capas menores apenas neste carrossel */
+        .section-mais-ouvidas .card { width: 95px; min-width: 95px; }
+        .section-mais-ouvidas .card-img { width: 95px; height: 95px; }
         .section-mais-ouvidas .card-info { font-size: 10px; }
-        /* ------------------------------------------------------------ */
+
+        /* ÁREA DE CONTEÚDO QUE ROLA */
+        #carousels-area { 
+            /* Empurra tudo para baixo para não começar escondido atrás do fixo */
+            padding-top: 250px; 
+            position: relative;
+            z-index: 1;
+        }
 
         .search-container { padding: 10px 20px; position: sticky; top: 100px; z-index: 101; background: var(--bg); }
         .search-input { 
@@ -51,15 +60,12 @@
             border: 1px solid var(--glass-border);
         }
 
-        .skeleton { background: linear-gradient(90deg, #1c1c1e 25%, #2c2c2e 50%, #1c1c1e 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        .section-container { margin-bottom: 25px; width: 100%; position: relative; }
+        .section-container { margin-bottom: 25px; width: 100%; }
         .section-title { padding: 0 20px 10px; font-size: 18px; font-weight: 700; color: #fff; }
         
         .horizontal-scroll { 
             display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px; 
-            scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth;
+            scrollbar-width: none; -ms-overflow-style: none; 
         }
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
@@ -78,9 +84,7 @@
         .fav-btn svg { width: 18px; fill: #666; }
         .fav-btn.active svg { fill: var(--yellow); }
 
-        /* Grid e outros carrosséis ficam em uma camada abaixo (z-index 1) */
-        #carousels-area, #grid-area { position: relative; z-index: 1; }
-        .grid-wrapper { width: 100vw; padding: 0 20px 120px; display: block; }
+        .grid-wrapper { width: 100vw; padding: 0 20px 120px; display: block; position: relative; z-index: 1; }
         .multi-direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
 
         #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 800; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
@@ -189,10 +193,12 @@
 
         function renderHome(data) {
             carouselsArea.innerHTML = '';
-            const frag = document.createDocumentFragment();
-            createCarousel("Mais Ouvidas", data.slice(0, 15), frag, true); 
-            createCarousel("Destaques", data.slice(15, 30), frag, false);
-            carouselsArea.appendChild(frag);
+            
+            // 1. Criar o carrossel fixo de Mais Ouvidas primeiro
+            createCarousel("Mais Ouvidas", data.slice(0, 15), carouselsArea, true); 
+            
+            // 2. Criar os outros carrosséis que vão rolar
+            createCarousel("Destaques", data.slice(15, 30), carouselsArea, false);
             addToGrid(data.slice(30));
         }
 
@@ -208,7 +214,13 @@
             section.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
             const scroll = section.querySelector('.horizontal-scroll');
             list.forEach(r => scroll.appendChild(createCard(r)));
-            container.appendChild(section);
+            
+            // Se for o fixo, ele vai direto no main-content para não ser afetado pelo padding do container
+            if(isMaisOuvidas) {
+                document.getElementById('main-content').insertBefore(section, carouselsArea);
+            } else {
+                container.appendChild(section);
+            }
         }
 
         function createCard(radio) {
@@ -220,7 +232,7 @@
                 <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
                     <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                 </div>
-                <img class="card-img skeleton" src="${radio.favicon || placeholder}" loading="lazy" onload="this.classList.remove('skeleton')" onerror="this.src='https://via.placeholder.com/140/2c2c2e/fff?text=Radio'">
+                <img class="card-img" src="${radio.favicon || placeholder}" loading="lazy" onerror="this.src='https://via.placeholder.com/140/2c2c2e/fff?text=Radio'">
                 <div class="card-info">${radio.name}</div>
             `;
             return el;
@@ -232,42 +244,21 @@
             if(btn) btn.classList.add('active');
             document.getElementById('player-view').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
-            const searchArea = document.getElementById('search-bar-area');
-            const gridTitle = document.getElementById('section-grid-title');
+            
+            const maisOuvidas = document.querySelector('.section-mais-ouvidas');
+
             if(mode === 'home') {
                 document.getElementById('page-title').innerText = "Rádios";
-                searchArea.style.display = 'none';
                 carouselsArea.style.display = 'block';
-                gridTitle.style.display = 'block';
-                loadingTrigger.style.display = 'flex';
-                masterGrid.innerHTML = '';
+                if(maisOuvidas) maisOuvidas.style.display = 'block';
                 offset = 0; radioData = []; loadRadios();
-            } else if(mode === 'lib') {
-                document.getElementById('page-title').innerText = "Biblioteca";
-                searchArea.style.display = 'none';
+            } else {
+                document.getElementById('page-title').innerText = mode === 'lib' ? "Biblioteca" : "Busca";
                 carouselsArea.style.display = 'none';
-                gridTitle.style.display = 'none';
-                loadingTrigger.style.display = 'none';
+                if(maisOuvidas) maisOuvidas.style.display = 'none';
                 masterGrid.innerHTML = '';
-                favorites.forEach(f => masterGrid.appendChild(createCard(f)));
-            } else if(mode === 'grid') {
-                document.getElementById('page-title').innerText = "Busca";
-                searchArea.style.display = 'block';
-                carouselsArea.style.display = 'none';
-                gridTitle.style.display = 'none';
-                loadingTrigger.style.display = 'none';
-                masterGrid.innerHTML = '';
-                searchMsg.style.display = 'block';
+                if(mode === 'lib') favorites.forEach(f => masterGrid.appendChild(createCard(f)));
             }
-        }
-
-        function executarBusca() {
-            const termo = searchInput.value.toLowerCase().trim();
-            masterGrid.innerHTML = '';
-            if (termo === "") { searchMsg.style.display = 'block'; return; }
-            searchMsg.style.display = 'none';
-            const filtrados = radioData.filter(r => r.name.toLowerCase().includes(termo));
-            addToGrid(filtrados);
         }
 
         function openRadioDetails(radio) {
@@ -309,7 +300,6 @@
             localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
             e.currentTarget.classList.toggle('active');
             updateBadge();
-            if(currentTab === 'lib') changeTab('lib', document.querySelectorAll('.nav-item')[1]);
         }
 
         function updateBadge() {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lamoniê Flow - Premium</title>
+    <title>LAMONIÊ FLASH</title>
     <style>
         :root { 
             --bg: #000; 
@@ -42,6 +42,26 @@
         }
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
+        /* Carrossel para a seção Explorar Todas */
+        .explore-scroll {
+            display: flex;
+            overflow-x: auto;
+            overflow-y: auto;
+            gap: 15px;
+            padding: 0 20px 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #ff2d55 #1c1c1e;
+            max-height: 520px; /* permite rolagem vertical se necessário */
+        }
+        .explore-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .explore-scroll::-webkit-scrollbar-thumb {
+            background: #ff2d55;
+            border-radius: 10px;
+        }
+
         .card { 
             width: 140px; 
             min-width: 140px; 
@@ -63,7 +83,6 @@
         .fav-btn svg { width: 18px; fill: #666; }
         .fav-btn.active svg { fill: var(--yellow); }
 
-        /* Botão Copiar */
         .copy-btn {
             position: absolute; top: 6px; left: 6px; width: 30px; height: 30px;
             background: rgba(0,0,0,0.7); border-radius: 50%; display: flex;
@@ -76,7 +95,6 @@
         .copy-btn.copied svg { fill: white; }
 
         .grid-wrapper { width: 100vw; padding: 0 20px 120px; display: block; }
-        .multi-direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
 
         #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 800; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .player-art { width: 85%; max-width: 320px; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin-bottom: 40px; }
@@ -99,7 +117,7 @@
 <body>
 
     <div id="main-content">
-        <header id="page-title">Rádios</header>
+        <header id="page-title">LAMONIÊ FLASH</header>
         
         <div id="search-bar-area" class="search-container" style="display: none;">
             <input type="text" id="input-busca" class="search-input" placeholder="Buscar rádio..." oninput="executarBusca()">
@@ -108,9 +126,8 @@
         <div id="carousels-area"></div>
 
         <div id="grid-area" class="grid-wrapper">
-            <div id="section-grid-title" class="section-title" style="padding: 20px 0;">Explorar Todas</div>
-            <div id="search-msg" style="text-align: center; padding: 20px; color: #666; display: none;">Digite algo para buscar</div>
-            <div class="multi-direction-grid" id="master-grid"></div>
+            <div id="section-grid-title" class="section-title" style="padding: 20px 0 10px;">Explorar Todas</div>
+            <div class="explore-scroll" id="explore-carousel"></div>
             <div id="loading-trigger">Carregando mais rádios...</div>
         </div>
     </div>
@@ -150,7 +167,7 @@
     <script>
         const audio = document.getElementById('audio-engine');
         const carouselsArea = document.getElementById('carousels-area');
-        const masterGrid = document.getElementById('master-grid');
+        const exploreCarousel = document.getElementById('explore-carousel');
         const badge = document.getElementById('badge-favs');
         const searchInput = document.getElementById('input-busca');
         const searchMsg = document.getElementById('search-msg');
@@ -175,7 +192,7 @@
                 if (data.length > 0) {
                     radioData = [...radioData, ...data];
                     if(offset === 0) renderHome(data);
-                    else addToGrid(data);
+                    else addToExplore(data);
                     offset += 50;
                 }
             } catch (err) { console.error(err); }
@@ -186,15 +203,15 @@
             carouselsArea.innerHTML = '';
             const frag = document.createDocumentFragment();
             
-            // Carrosséis originais (não alterados)
+            // Dois carrosséis horizontais originais (NÃO MEXIDOS)
             createCarousel("Mais Ouvidas", data.slice(0, 15), frag);
             createCarousel("Destaques", data.slice(15, 30), frag);
-            
-            // Novo carrossel horizontal
-            createCarousel("Mais Rádios", data.slice(30, 60), frag);
 
             carouselsArea.appendChild(frag);
-            addToGrid(data.slice(60));
+            
+            // Preenche o novo carrossel da seção Explorar Todas
+            exploreCarousel.innerHTML = '';
+            addToExplore(data.slice(30));
         }
 
         function createCarousel(title, list, container) {
@@ -206,6 +223,12 @@
             container.appendChild(section);
         }
 
+        function addToExplore(list) {
+            const frag = document.createDocumentFragment();
+            list.forEach(r => frag.appendChild(createCard(r)));
+            exploreCarousel.appendChild(frag);
+        }
+
         function createCard(radio) {
             const isFav = favorites.some(f => f.stationuuid === radio.stationuuid);
             const el = document.createElement('div');
@@ -213,12 +236,10 @@
             el.onclick = () => openRadioDetails(radio);
             
             el.innerHTML = `
-                <!-- Botão Copiar -->
                 <div class="copy-btn" onclick="copyRadioLink(event, '${radio.url_resolved || ''}', this)">
                     <svg viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                 </div>
 
-                <!-- Botão Favorito -->
                 <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
                     <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                 </div>
@@ -234,23 +255,15 @@
         function copyRadioLink(e, url, btn) {
             e.stopPropagation();
             if (!url) return;
-            
             navigator.clipboard.writeText(url).then(() => {
                 const original = btn.innerHTML;
                 btn.classList.add('copied');
                 btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
-                
                 setTimeout(() => {
                     btn.classList.remove('copied');
                     btn.innerHTML = original;
                 }, 1800);
             });
-        }
-
-        function addToGrid(list) {
-            const frag = document.createDocumentFragment();
-            list.forEach(r => frag.appendChild(createCard(r)));
-            masterGrid.appendChild(frag);
         }
 
         function changeTab(mode, btn) {
@@ -265,12 +278,11 @@
             const gridTitle = document.getElementById('section-grid-title');
 
             if(mode === 'home') {
-                document.getElementById('page-title').innerText = "Rádios";
+                document.getElementById('page-title').innerText = "LAMONIÊ FLASH";
                 searchArea.style.display = 'none';
                 carouselsArea.style.display = 'block';
                 gridTitle.style.display = 'block';
                 loadingTrigger.style.display = 'flex';
-                masterGrid.innerHTML = '';
                 offset = 0; 
                 radioData = []; 
                 loadRadios();
@@ -280,29 +292,31 @@
                 carouselsArea.style.display = 'none';
                 gridTitle.style.display = 'none';
                 loadingTrigger.style.display = 'none';
-                masterGrid.innerHTML = '';
-                favorites.forEach(f => masterGrid.appendChild(createCard(f)));
+                exploreCarousel.innerHTML = '';
+                favorites.forEach(f => exploreCarousel.appendChild(createCard(f)));
             } else if(mode === 'grid') {
                 document.getElementById('page-title').innerText = "Busca";
                 searchArea.style.display = 'block';
                 carouselsArea.style.display = 'none';
                 gridTitle.style.display = 'none';
                 loadingTrigger.style.display = 'none';
-                masterGrid.innerHTML = '';
+                exploreCarousel.innerHTML = '';
                 searchMsg.style.display = 'block';
             }
         }
 
         function executarBusca() {
             const termo = searchInput.value.toLowerCase().trim();
-            masterGrid.innerHTML = '';
+            exploreCarousel.innerHTML = '';
             if (termo === "") { 
                 searchMsg.style.display = 'block'; 
                 return; 
             }
             searchMsg.style.display = 'none';
             const filtrados = radioData.filter(r => r.name.toLowerCase().includes(termo));
-            addToGrid(filtrados);
+            const frag = document.createDocumentFragment();
+            filtrados.forEach(r => frag.appendChild(createCard(r)));
+            exploreCarousel.appendChild(frag);
         }
 
         function openRadioDetails(radio) {
@@ -331,7 +345,7 @@
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: radio.name,
-                    artist: 'Lamoniê Flow - Premium',
+                    artist: 'LAMONIÊ FLASH',
                     album: radio.state || radio.country,
                     artwork: [{ src: radio.favicon || '', sizes: '512x512', type: 'image/png' }]
                 });

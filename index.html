@@ -1,24 +1,334 @@
-<style>
-    /* Estilo exclusivo para o topo de São João */
-    header { 
-        padding: 60px 20px; 
-        font-size: 36px; 
-        font-weight: 900; 
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-        background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1596438511733-b460db620ec4?q=80&w=1000&auto=format&fit=crop'); /* Imagem de São João */
-        background-size: cover;
-        background-position: center;
-        color: #FFD700; /* Dourado para destacar no fundo */
-        text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
-        border-bottom: 2px solid var(--apple-red);
-    }
-    
-    /* Mantém o resto do corpo preto para não afetar as rádios */
-    #dynamic-content { background: #000; }
-</style>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAMONIÊ FLASH</title>
+    <style>
+        :root { 
+            --bg: #000; 
+            --apple-red: #ff2d55;
+            --glass: rgba(28, 28, 30, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --yellow: #FFD700;
+        }
+        
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: white; overflow-x: hidden; width: 100vw; }
 
-<header id="page-title">
-    LAMONIÊ FLASH
-</header>
+        /* HEADER COM TEMA DE SÃO JOÃO */
+        header { 
+            padding: 50px 20px; 
+            font-size: 32px; 
+            font-weight: 900; 
+            text-align: center;
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1596438511733-b460db620ec4?q=80&w=1000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            color: var(--yellow);
+            text-shadow: 2px 2px 8px rgba(0,0,0,1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--apple-red);
+        }
+
+        .section-container { margin-bottom: 30px; width: 100%; }
+        .section-title { padding: 15px 20px 12px; font-size: 19px; font-weight: 700; color: #fff; }
+        
+        .horizontal-scroll { 
+            display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 15px; 
+            scrollbar-width: none; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+        }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+
+        .card { 
+            width: 150px; min-width: 150px; background: #1c1c1e; border-radius: 16px;
+            overflow: hidden; border: 0.5px solid #333; position: relative; flex-shrink: 0;
+        }
+
+        .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #2c2c2e; display: block; }
+        .card-info { padding: 10px 8px; font-size: 12px; font-weight: 600; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        .fav-btn {
+            position: absolute; top: 8px; right: 8px; width: 34px; height: 34px;
+            background: rgba(0,0,0,0.7); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; z-index: 50; cursor: pointer;
+        }
+        .fav-btn svg { width: 20px; height: 20px; fill: #666; transition: fill 0.2s; pointer-events: none; }
+        .fav-btn.active svg { fill: var(--yellow) !important; }
+
+        .content-wrapper { padding-bottom: 120px; }
+
+        /* PLAYER VIEW */
+        #player-view { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 500; display: none; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            padding: 20px; padding-bottom: 110px;
+        }
+        .player-art { width: 80%; max-width: 300px; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #p-name { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 5px; }
+        #p-loc { color: #8e8e93; margin-bottom: 20px; }
+
+        /* BARRA DE BOTÕES (DOCK) */
+        .apple-dock { 
+            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); 
+            width: 95%; max-width: 450px; height: 75px; z-index: 1000; 
+            background: var(--glass); backdrop-filter: blur(30px); 
+            border-radius: 38px; border: 1px solid var(--glass-border); 
+            display: flex; align-items: center; justify-content: space-evenly; padding: 0 5px;
+        }
+
+        .nav-item { display: flex; flex-direction: column; align-items: center; width: 55px; color: #8e8e93; cursor: pointer; position: relative; }
+        .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; fill: #8e8e93; }
+        .nav-item span { font-size: 10px; }
+        .nav-item.active { color: var(--apple-red); }
+        .nav-item.active svg { fill: var(--apple-red); }
+        
+        #badge-favs { 
+            position: absolute; top: -5px; right: 8px; background: var(--yellow); color: #000; 
+            font-size: 10px; font-weight: 800; min-width: 16px; height: 16px; 
+            border-radius: 50%; display: none; align-items: center; justify-content: center;
+        }
+
+        .dock-thumb-btn { width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #2c2c2e; display: none; border: 1px solid #444; }
+        #dock-thumb { width: 100%; height: 100%; object-fit: cover; }
+
+        .dock-play-only { width: 45px; height: 45px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        
+        #loading-trigger { height: 50px; text-align: center; color: var(--apple-red); padding: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div id="main-content">
+        <header id="page-title">LAMONIÊ FLASH</header>
+        <div id="dynamic-content" class="content-wrapper">
+            <div id="static-carousels"></div>
+            <div id="infinite-carousels"></div>
+            <div id="loading-trigger">Carregando rádios...</div>
+        </div>
+    </div>
+
+    <div id="player-view">
+        <img id="p-art" class="player-art" src="">
+        <h2 id="p-name"></h2>
+        <p id="p-loc"></p>
+    </div>
+
+    <div class="apple-dock">
+        <div class="nav-item active" id="btn-home" onclick="changeTab('home', this)">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Início</span>
+        </div>
+
+        <div class="nav-item" id="btn-lib" onclick="changeTab('lib', this)">
+            <div id="badge-favs">0</div>
+            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            <span>Biblioteca</span>
+        </div>
+        
+        <div class="dock-thumb-btn" id="thumb-btn" onclick="voltarAoPlayer()">
+            <img id="dock-thumb" src="">
+        </div>
+
+        <div class="dock-play-only" onclick="handleDockPlayClick()">
+            <svg viewBox="0 0 24 24" width="26"><path id="play-icon" fill="white" d="M8 5v14l11-7z"/></svg>
+        </div>
+
+        <div class="nav-item" onclick="alert('Busca em desenvolvimento')">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/></svg>
+            <span>Busca</span>
+        </div>
+    </div>
+
+    <audio id="audio-engine" crossorigin="anonymous"></audio>
+
+    <script>
+        const audio = document.getElementById('audio-engine');
+        const staticCarousels = document.getElementById('static-carousels');
+        const infiniteCarousels = document.getElementById('infinite-carousels');
+        const badge = document.getElementById('badge-favs');
+        
+        let radioData = []; 
+        let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
+        let offset = 0;
+        let isFetching = false;
+        let currentTab = 'home';
+        let currentRadioPlaying = null;
+
+        async function loadRadios() {
+            if(isFetching || currentTab !== 'home') return;
+            isFetching = true;
+            try {
+                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=50&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
+                const data = await response.json();
+                if (data.length > 0) {
+                    radioData = [...radioData, ...data];
+                    renderSections(data);
+                    offset += 50;
+                }
+            } catch (err) { console.error(err); }
+            finally { isFetching = false; }
+        }
+
+        function renderSections(data) {
+            if (offset === 0) {
+                staticCarousels.innerHTML = '';
+                createCarousel("Mais Ouvidas", data.slice(0, 15), staticCarousels);
+                createCarousel("Destaques", data.slice(15, 30), staticCarousels);
+                createCarousel("Mais Rádios", data.slice(30, 45), staticCarousels);
+                createDynamicBatches(data.slice(45), infiniteCarousels, "Explorar Rádios");
+            } else {
+                createDynamicBatches(data, infiniteCarousels, "Explorar Rádios");
+            }
+        }
+
+        function createDynamicBatches(list, container, titlePrefix) {
+            const size = 12;
+            for (let i = 0; i < list.length; i += size) {
+                const batch = list.slice(i, i + size);
+                createCarousel(`${titlePrefix} ${Math.floor(i/size)+1}`, batch, container);
+            }
+        }
+
+        function createCarousel(title, list, container) {
+            const section = document.createElement('div');
+            section.className = 'section-container';
+            section.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
+            const scroll = section.querySelector('.horizontal-scroll');
+            list.forEach(r => scroll.appendChild(createCard(r)));
+            container.appendChild(section);
+        }
+
+        function createCard(radio) {
+            const isFav = favorites.some(f => f.stationuuid === radio.stationuuid);
+            const el = document.createElement('div');
+            el.className = 'card';
+            el.innerHTML = `
+                <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
+                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                </div>
+                <div onclick="prepararPlay('${radio.stationuuid}')">
+                    <img class="card-img" src="${radio.favicon || 'https://via.placeholder.com/150/2c2c2e/fff?text=Radio'}" loading="lazy">
+                    <div class="card-info">${radio.name}</div>
+                </div>
+            `;
+            return el;
+        }
+
+        function toggleFav(e, uuid) {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            const index = favorites.findIndex(f => f.stationuuid === uuid);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                btn.classList.remove('active');
+            } else {
+                const radioObj = radioData.find(r => r.stationuuid === uuid) || favorites.find(r => r.stationuuid === uuid);
+                if (radioObj) {
+                    favorites.push(radioObj);
+                    btn.classList.add('active');
+                }
+            }
+            localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
+            updateBadge();
+            if(currentTab === 'lib') renderBiblioteca();
+        }
+
+        function updateBadge() {
+            if(favorites.length > 0) {
+                badge.innerText = favorites.length;
+                badge.style.display = 'flex';
+            } else { badge.style.display = 'none'; }
+        }
+
+        function changeTab(mode, btn) {
+            currentTab = mode;
+            document.getElementById('player-view').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            btn.classList.add('active');
+            window.scrollTo(0,0);
+            if(mode === 'home') {
+                staticCarousels.style.display = 'block';
+                infiniteCarousels.innerHTML = '';
+                offset = 0; radioData = []; loadRadios();
+            } else if(mode === 'lib') {
+                renderBiblioteca();
+            }
+        }
+
+        function renderBiblioteca() {
+            staticCarousels.style.display = 'none';
+            infiniteCarousels.innerHTML = '';
+            if(favorites.length > 0) createDynamicBatches(favorites, infiniteCarousels, "Meus Favoritos");
+            else infiniteCarousels.innerHTML = '<p style="text-align:center;padding:50px;color:#666;">Sua biblioteca está vazia.</p>';
+        }
+
+        function prepararPlay(uuid) {
+            const radio = radioData.find(r => r.stationuuid === uuid) || favorites.find(r => r.stationuuid === uuid);
+            if(radio) openRadioDetails(radio);
+        }
+
+        function openRadioDetails(radio) {
+            currentRadioPlaying = radio;
+            const art = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
+            document.getElementById('p-art').src = art;
+            document.getElementById('p-name').innerText = radio.name;
+            document.getElementById('p-loc').innerText = radio.country;
+            document.getElementById('player-view').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('dock-thumb').src = art;
+            document.getElementById('thumb-btn').style.display = 'block';
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+
+            if(audio.src !== radio.url_resolved) { 
+                audio.src = radio.url_resolved; 
+                audio.play(); 
+                updateMediaMetadata(radio);
+                document.getElementById('play-icon').setAttribute('d', "M6 19h4V5H6v14zm8-14v14h4V5h-4z");
+            }
+        }
+
+        function voltarAoPlayer() {
+            if(currentRadioPlaying) {
+                document.getElementById('player-view').style.display = 'flex';
+                document.getElementById('main-content').style.display = 'none';
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            }
+        }
+
+        function updateMediaMetadata(radio) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: radio.name,
+                    artist: 'LAMONIÊ FLASH',
+                    artwork: [{ src: radio.favicon || '', sizes: '512x512', type: 'image/png' }]
+                });
+            }
+        }
+
+        function handleDockPlayClick() {
+            if(!audio.src) return;
+            if(audio.paused) { 
+                audio.play(); 
+                document.getElementById('play-icon').setAttribute('d', "M6 19h4V5H6v14zm8-14v14h4V5h-4z"); 
+            } else { 
+                audio.pause(); 
+                document.getElementById('play-icon').setAttribute('d', "M8 5v14l11-7z"); 
+            }
+        }
+
+        window.onscroll = () => {
+            if (currentTab === 'home' && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                loadRadios();
+            }
+        };
+
+        loadRadios();
+        updateBadge();
+    </script>
+</body>
+</html>

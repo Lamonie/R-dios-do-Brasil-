@@ -35,7 +35,6 @@
         .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #2c2c2e; display: block; }
         .card-info { padding: 10px 8px; font-size: 12px; font-weight: 600; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        /* BOTÃO FAVORITO - CORREÇÃO DEFINITIVA */
         .fav-btn {
             position: absolute; top: 8px; right: 8px; width: 34px; height: 34px;
             background: rgba(0,0,0,0.7); border-radius: 50%; display: flex;
@@ -114,7 +113,7 @@
         const infiniteCarousels = document.getElementById('infinite-carousels');
         const badge = document.getElementById('badge-favs');
         
-        let radioData = []; // Armazena todas as rádios carregadas
+        let radioData = []; 
         let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
         let offset = 0;
         let isFetching = false;
@@ -127,7 +126,6 @@
                 const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=50&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
                 const data = await response.json();
                 if (data.length > 0) {
-                    // Adiciona ao banco de dados global para que o Favoritar sempre encontre o objeto
                     radioData = [...radioData, ...data];
                     renderSections(data);
                     offset += 50;
@@ -142,18 +140,19 @@
                 createCarousel("Mais Ouvidas", data.slice(0, 15), staticCarousels);
                 createCarousel("Destaques", data.slice(15, 30), staticCarousels);
                 createCarousel("Mais Rádios", data.slice(30, 45), staticCarousels);
-                createDynamicBatches(data.slice(45));
+                createDynamicBatches(data.slice(45), infiniteCarousels, "Explorar Rádios");
             } else {
-                createDynamicBatches(data);
+                createDynamicBatches(data, infiniteCarousels, "Explorar Rádios");
             }
         }
 
-        function createDynamicBatches(list) {
-            for (let i = 0; i < list.length; i += 12) {
-                const batch = list.slice(i, i + 12);
-                if (batch.length > 2) {
-                    createCarousel(`Explorar Rádios`, batch, infiniteCarousels);
-                }
+        // Função universal para criar blocos de carrosséis (usada no Início e Biblioteca)
+        function createDynamicBatches(list, container, titlePrefix) {
+            const size = 12;
+            for (let i = 0; i < list.length; i += size) {
+                const batch = list.slice(i, i + size);
+                const count = Math.floor(i/size) + 1;
+                createCarousel(`${titlePrefix} ${list.length > size ? count : ''}`, batch, container);
             }
         }
 
@@ -189,11 +188,9 @@
             const index = favorites.findIndex(f => f.stationuuid === uuid);
             
             if (index > -1) {
-                // Remove dos favoritos
                 favorites.splice(index, 1);
                 btn.classList.remove('active');
             } else {
-                // Adiciona aos favoritos buscando do radioData global
                 const radioObj = radioData.find(r => r.stationuuid === uuid) || favorites.find(r => r.stationuuid === uuid);
                 if (radioObj) {
                     favorites.push(radioObj);
@@ -204,7 +201,7 @@
             localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
             updateBadge();
             
-            // Se estiver na aba biblioteca, recarrega a vista para sumir o que foi desfavoritado
+            // Se estiver na aba biblioteca, re-renderiza para organizar os carrosséis
             if(currentTab === 'lib') renderBiblioteca();
         }
 
@@ -239,8 +236,10 @@
             document.getElementById('page-title').innerText = "Biblioteca";
             staticCarousels.style.display = 'none';
             infiniteCarousels.innerHTML = '';
+            
             if(favorites.length > 0) {
-                createCarousel("Suas Favoritas", favorites, infiniteCarousels);
+                // Organiza os favoritos em carrosséis de 12 itens cada, um abaixo do outro
+                createDynamicBatches(favorites, infiniteCarousels, "Meus Favoritos");
             } else {
                 infiniteCarousels.innerHTML = '<p style="text-align:center;padding:50px;color:#666;">Nenhuma rádio favorita.</p>';
             }
@@ -280,7 +279,6 @@
             }
         };
 
-        // Boot
         loadRadios();
         updateBadge();
     </script>

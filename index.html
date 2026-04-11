@@ -48,21 +48,44 @@
         #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .player-art { width: 80%; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; margin-bottom: 40px; }
 
-        .apple-dock { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; height: 75px; z-index: 1000; background: var(--glass); backdrop-filter: blur(30px); border-radius: 38px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-around; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #8e8e93; position: relative; cursor: pointer; }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: #8e8e93; }
+        /* AJUSTE DO DOCK PARA 5 ITENS */
+        .apple-dock { 
+            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); 
+            width: 95%; max-width: 450px; height: 75px; z-index: 1000; 
+            background: var(--glass); backdrop-filter: blur(30px); 
+            border-radius: 38px; border: 1px solid var(--glass-border); 
+            display: flex; align-items: center; justify-content: space-evenly; 
+            padding: 0 10px;
+        }
+
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; 
+            width: 60px; color: #8e8e93; position: relative; cursor: pointer; 
+        }
+        .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; fill: #8e8e93; }
+        .nav-item span { font-size: 10px; font-weight: 500; }
         .nav-item.active { color: var(--apple-red); }
         .nav-item.active svg { fill: var(--apple-red); }
         
         #badge-favs { 
-            position: absolute; top: -5px; right: 15px; background: var(--yellow); color: #000; 
-            font-size: 11px; font-weight: 800; min-width: 18px; height: 18px; 
+            position: absolute; top: -5px; right: 10px; background: var(--yellow); color: #000; 
+            font-size: 10px; font-weight: 800; min-width: 16px; height: 16px; 
             border-radius: 10px; display: none; align-items: center; justify-content: center;
         }
 
-        .dock-play-btn { width: 58px; height: 58px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; }
-        #dock-thumb { position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
-        #play-icon-svg { position: relative; z-index: 2; }
+        /* MINIATURA DEDICADA */
+        .dock-thumb-container { 
+            width: 48px; height: 48px; border-radius: 12px; 
+            overflow: hidden; background: #2c2c2e; border: 1px solid var(--glass-border);
+            display: none; /* Só aparece quando algo toca */
+        }
+        #dock-thumb { width: 100%; height: 100%; object-fit: cover; }
+
+        /* PLAY/PAUSE DEDICADO */
+        .dock-play-only { 
+            width: 48px; height: 48px; background: rgba(255,255,255,0.1); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+        }
         
         #loading-trigger { height: 50px; text-align: center; color: var(--apple-red); font-size: 14px; padding: 20px; }
     </style>
@@ -71,7 +94,6 @@
 
     <div id="main-content">
         <header id="page-title">LAMONIÊ FLASH</header>
-        
         <div id="dynamic-content" class="content-wrapper">
             <div id="static-carousels"></div>
             <div id="infinite-carousels"></div>
@@ -91,17 +113,19 @@
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span>Início</span>
         </div>
+
         <div class="nav-item" id="btn-lib" onclick="changeTab('lib', this)">
             <div id="badge-favs">0</div>
             <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             <span>Biblioteca</span>
         </div>
         
-        <div class="dock-play-btn">
-            <img id="dock-thumb" src="" onclick="voltarAoPlayer()">
-            <svg id="play-icon-svg" viewBox="0 0 24 24" width="30" onclick="handleDockPlayClick()">
-                <path id="play-icon" fill="white" d="M8 5v14l11-7z"/>
-            </svg>
+        <div class="dock-thumb-container" id="thumb-btn" onclick="voltarAoPlayer()">
+            <img id="dock-thumb" src="">
+        </div>
+
+        <div class="dock-play-only" id="play-pause-btn" onclick="handleDockPlayClick()">
+            <svg viewBox="0 0 24 24" width="28"><path id="play-icon" fill="white" d="M8 5v14l11-7z"/></svg>
         </div>
 
         <div class="nav-item" onclick="alert('Busca em desenvolvimento')">
@@ -123,7 +147,7 @@
         let offset = 0;
         let isFetching = false;
         let currentTab = 'home';
-        let currentRadioPlaying = null; // Guarda a rádio que está tocando agora
+        let currentRadioPlaying = null;
 
         async function loadRadios() {
             if(isFetching || currentTab !== 'home') return;
@@ -243,7 +267,7 @@
         }
 
         function openRadioDetails(radio) {
-            currentRadioPlaying = radio; // Salva para a função de voltar
+            currentRadioPlaying = radio;
             const art = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
             document.getElementById('p-art').src = art;
             document.getElementById('p-name').innerText = radio.name;
@@ -251,8 +275,9 @@
             document.getElementById('player-view').style.display = 'flex';
             document.getElementById('main-content').style.display = 'none';
             
+            // Ativa o botão da miniatura no Dock
             document.getElementById('dock-thumb').src = art;
-            document.getElementById('dock-thumb').style.display = 'block';
+            document.getElementById('thumb-btn').style.display = 'block';
 
             if(audio.src !== radio.url_resolved) { 
                 audio.src = radio.url_resolved; 
@@ -262,7 +287,6 @@
             }
         }
 
-        // NOVA FUNÇÃO: Voltar para a tela da rádio que já está tocando
         function voltarAoPlayer() {
             if(currentRadioPlaying) {
                 document.getElementById('player-view').style.display = 'flex';

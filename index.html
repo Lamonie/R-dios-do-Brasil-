@@ -105,7 +105,7 @@
         </div>
     </div>
 
-    <audio id="audio-engine"></audio>
+    <audio id="audio-engine" crossorigin="anonymous"></audio>
 
     <script>
         const audio = document.getElementById('audio-engine');
@@ -146,7 +146,6 @@
             }
         }
 
-        // Função universal para criar blocos de carrosséis (usada no Início e Biblioteca)
         function createDynamicBatches(list, container, titlePrefix) {
             const size = 12;
             for (let i = 0; i < list.length; i += size) {
@@ -169,7 +168,6 @@
             const isFav = favorites.some(f => f.stationuuid === radio.stationuuid);
             const el = document.createElement('div');
             el.className = 'card';
-            
             el.innerHTML = `
                 <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
                     <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
@@ -186,7 +184,6 @@
             e.stopPropagation();
             const btn = e.currentTarget;
             const index = favorites.findIndex(f => f.stationuuid === uuid);
-            
             if (index > -1) {
                 favorites.splice(index, 1);
                 btn.classList.remove('active');
@@ -197,11 +194,8 @@
                     btn.classList.add('active');
                 }
             }
-            
             localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
             updateBadge();
-            
-            // Se estiver na aba biblioteca, re-renderiza para organizar os carrosséis
             if(currentTab === 'lib') renderBiblioteca();
         }
 
@@ -219,14 +213,11 @@
             window.scrollTo(0,0);
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             btn.classList.add('active');
-
             if(mode === 'home') {
                 document.getElementById('page-title').innerText = "LAMONIÊ FLASH";
                 staticCarousels.style.display = 'block';
                 infiniteCarousels.innerHTML = '';
-                offset = 0;
-                radioData = [];
-                loadRadios();
+                offset = 0; radioData = []; loadRadios();
             } else if(mode === 'lib') {
                 renderBiblioteca();
             }
@@ -236,13 +227,8 @@
             document.getElementById('page-title').innerText = "Biblioteca";
             staticCarousels.style.display = 'none';
             infiniteCarousels.innerHTML = '';
-            
-            if(favorites.length > 0) {
-                // Organiza os favoritos em carrosséis de 12 itens cada, um abaixo do outro
-                createDynamicBatches(favorites, infiniteCarousels, "Meus Favoritos");
-            } else {
-                infiniteCarousels.innerHTML = '<p style="text-align:center;padding:50px;color:#666;">Nenhuma rádio favorita.</p>';
-            }
+            if(favorites.length > 0) createDynamicBatches(favorites, infiniteCarousels, "Meus Favoritos");
+            else infiniteCarousels.innerHTML = '<p style="text-align:center;padding:50px;color:#666;">Nenhuma rádio favorita.</p>';
         }
 
         function prepararPlay(uuid) {
@@ -251,26 +237,51 @@
         }
 
         function openRadioDetails(radio) {
-            document.getElementById('p-art').src = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
+            const art = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
+            document.getElementById('p-art').src = art;
             document.getElementById('p-name').innerText = radio.name;
             document.getElementById('p-loc').innerText = radio.country;
             document.getElementById('player-view').style.display = 'flex';
             document.getElementById('main-content').style.display = 'none';
             
-            document.getElementById('dock-thumb').src = radio.favicon || '';
+            document.getElementById('dock-thumb').src = art;
             document.getElementById('dock-thumb').style.display = 'block';
 
             if(audio.src !== radio.url_resolved) { 
                 audio.src = radio.url_resolved; 
                 audio.play(); 
+                updateMediaMetadata(radio); // ATUALIZA TELA DE BLOQUEIO
                 document.getElementById('play-icon').setAttribute('d', "M6 19h4V5H6v14zm8-14v14h4V5h-4z");
+            }
+        }
+
+        // --- FUNÇÃO PARA TELA DE BLOQUEIO DO IPHONE ---
+        function updateMediaMetadata(radio) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: radio.name,
+                    artist: 'LAMONIÊ FLASH',
+                    album: radio.country,
+                    artwork: [
+                        { src: radio.favicon || '', sizes: '96x96', type: 'image/png' },
+                        { src: radio.favicon || '', sizes: '512x512', type: 'image/png' },
+                    ]
+                });
+
+                navigator.mediaSession.setActionHandler('play', () => handleDockPlayClick());
+                navigator.mediaSession.setActionHandler('pause', () => handleDockPlayClick());
             }
         }
 
         function handleDockPlayClick() {
             if(!audio.src) return;
-            if(audio.paused) { audio.play(); document.getElementById('play-icon').setAttribute('d', "M6 19h4V5H6v14zm8-14v14h4V5h-4z"); }
-            else { audio.pause(); document.getElementById('play-icon').setAttribute('d', "M8 5v14l11-7z"); }
+            if(audio.paused) { 
+                audio.play(); 
+                document.getElementById('play-icon').setAttribute('d', "M6 19h4V5H6v14zm8-14v14h4V5h-4z"); 
+            } else { 
+                audio.pause(); 
+                document.getElementById('play-icon').setAttribute('d', "M8 5v14l11-7z"); 
+            }
         }
 
         window.onscroll = () => {

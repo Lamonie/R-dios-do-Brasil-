@@ -11,68 +11,73 @@
             --glass: rgba(28, 28, 30, 0.85);
             --glass-border: rgba(255, 255, 255, 0.1);
             --yellow: #FFD700;
+            --neon-glow: 0 0 10px rgba(255, 45, 85, 0.8), 0 0 20px rgba(255, 45, 85, 0.3);
         }
         
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; overflow-x: hidden; width: 100vw; }
 
-        header { padding: 50px 20px 10px; font-size: 32px; font-weight: 800; background: var(--bg); position: sticky; top: 0; z-index: 100; }
-
-        .search-container { padding: 10px 20px; position: sticky; top: 100px; z-index: 101; background: var(--bg); }
-        .search-input { 
-            width: 100%; padding: 12px 15px; border-radius: 12px; border: none; 
-            background: #1c1c1e; color: white; font-size: 16px; outline: none;
-            border: 1px solid var(--glass-border);
+        /* EFEITO AFTER EFFECTS LAMONIÊ FLASH */
+        header { 
+            padding: 50px 20px 20px; 
+            font-size: 36px; 
+            font-weight: 900; 
+            text-align: center;
+            background: var(--bg); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: var(--neon-glow);
+            animation: glitch 3s infinite linear alternate-reverse;
         }
 
-        .skeleton { background: linear-gradient(90deg, #1c1c1e 25%, #2c2c2e 50%, #1c1c1e 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        @keyframes glitch {
+            0% { text-shadow: 2px 2px #ff2d55, -2px -2px #00fff9; transform: skew(0deg); }
+            2% { text-shadow: -3px 0px #ff2d55, 3px 0px #00fff9; transform: skew(2deg); }
+            4% { text-shadow: 2px 0px #ff2d55, -2px 0px #00fff9; transform: skew(-2deg); }
+            100% { text-shadow: 1px 1px #ff2d55, -1px -1px #00fff9; }
+        }
+
+        .search-container { padding: 10px 20px; position: sticky; top: 110px; z-index: 101; background: var(--bg); }
+        .search-input { 
+            width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--glass-border); 
+            background: #1c1c1e; color: white; font-size: 16px; outline: none;
+        }
+
+        .skeleton { background: #1c1c1e; position: relative; overflow: hidden; }
+        .skeleton::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: loading 1.2s infinite;
+        }
+        @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
         .section-container { margin-bottom: 25px; width: 100%; }
         .section-title { padding: 0 20px 10px; font-size: 18px; font-weight: 700; color: #fff; }
         
         .horizontal-scroll { 
-            display: flex; 
-            overflow-x: auto; 
-            gap: 15px; 
-            padding: 0 20px 10px; 
-            scrollbar-width: none; 
-            -ms-overflow-style: none; 
-            scroll-behavior: smooth;
+            display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px; 
+            scrollbar-width: none; scroll-behavior: smooth;
         }
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
-        /* Carrossel para a seção Explorar Todas */
-        .explore-scroll {
-            display: flex;
-            overflow-x: auto;
-            overflow-y: auto;
+        .explore-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 15px;
-            padding: 0 20px 20px;
-            scrollbar-width: thin;
-            scrollbar-color: #ff2d55 #1c1c1e;
-            max-height: 520px; /* permite rolagem vertical se necessário */
-        }
-        .explore-scroll::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .explore-scroll::-webkit-scrollbar-thumb {
-            background: #ff2d55;
-            border-radius: 10px;
+            padding: 0 20px 120px;
         }
 
         .card { 
-            width: 140px; 
-            min-width: 140px; 
-            background: #1c1c1e; 
-            border-radius: 14px;
-            overflow: hidden; 
-            border: 0.5px solid #333; 
-            position: relative; 
-            flex-shrink: 0;
+            background: #1c1c1e; border-radius: 14px; overflow: hidden; 
+            border: 0.5px solid #333; position: relative; transition: transform 0.2s;
         }
-        .card-img { width: 140px; height: 140px; object-fit: cover; display: block; background: #2c2c2e; }
+        .card:active { transform: scale(0.95); }
+        .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; background: #2c2c2e; opacity: 0; transition: opacity 0.3s; }
+        .card-img.loaded { opacity: 1; }
         .card-info { padding: 10px 8px; font-size: 12px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .fav-btn {
@@ -80,85 +85,63 @@
             background: rgba(0,0,0,0.6); border-radius: 50%; display: flex;
             align-items: center; justify-content: center; z-index: 10;
         }
-        .fav-btn svg { width: 18px; fill: #666; }
         .fav-btn.active svg { fill: var(--yellow); }
+        .fav-btn svg { width: 18px; fill: #666; }
 
-        .copy-btn {
-            position: absolute; top: 6px; left: 6px; width: 30px; height: 30px;
-            background: rgba(0,0,0,0.7); border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; z-index: 10;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .copy-btn svg { width: 16px; fill: #aaa; }
-        .copy-btn:hover { background: rgba(255,45,85,0.3); }
-        .copy-btn.copied { background: #22c55e; }
-        .copy-btn.copied svg { fill: white; }
-
-        .grid-wrapper { width: 100vw; padding: 0 20px 120px; display: block; }
-
-        #player-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 800; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .player-art { width: 85%; max-width: 320px; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin-bottom: 40px; }
-
-        .apple-dock { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; height: 75px; z-index: 1000; background: var(--glass); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border-radius: 38px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-around; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #8e8e93; position: relative; }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: #8e8e93; }
-        .nav-item span { font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .apple-dock { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; height: 75px; z-index: 1000; background: var(--glass); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border-radius: 38px; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-around; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; color: #8e8e93; }
         .nav-item.active { color: var(--apple-red); }
         .nav-item.active svg { fill: var(--apple-red); }
-        #badge-favs { position: absolute; top: -6px; right: 20%; background: var(--yellow); color: #000; font-size: 10px; font-weight: 900; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; padding: 0 4px; }
+        .nav-item svg { width: 24px; height: 24px; fill: #8e8e93; }
         
-        .dock-play-btn { width: 58px; height: 58px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); position: relative; overflow: hidden; }
-        #dock-thumb { position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
-        #play-icon { z-index: 2; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
+        .dock-play-btn { width: 60px; height: 60px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid var(--apple-red); }
+        #dock-thumb { position: absolute; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; opacity: 0.5; }
 
-        #loading-trigger { height: 60px; display: flex; align-items: center; justify-content: center; color: var(--apple-red); font-weight: bold; padding-bottom: 100px; }
+        #player-view { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+        .player-art { width: 280px; height: 280px; border-radius: 20px; box-shadow: 0 20px 40px rgba(255,45,85,0.3); margin-bottom: 30px; }
+        
+        #loading-trigger { padding: 40px; text-align: center; color: var(--apple-red); font-weight: bold; }
     </style>
 </head>
 <body>
 
+    <header id="page-title">LAMONIÊ FLASH</header>
+
     <div id="main-content">
-        <header id="page-title">LAMONIÊ FLASH</header>
-        
         <div id="search-bar-area" class="search-container" style="display: none;">
-            <input type="text" id="input-busca" class="search-input" placeholder="Buscar rádio..." oninput="executarBusca()">
+            <input type="text" id="input-busca" class="search-input" placeholder="O que você quer ouvir?" oninput="debounceSearch()">
         </div>
 
-        <div id="carousels-area"></div>
-
-        <div id="grid-area" class="grid-wrapper">
-            <div id="section-grid-title" class="section-title" style="padding: 20px 0 10px;">Explorar Todas</div>
-            <div class="explore-scroll" id="explore-carousel"></div>
-            <div id="loading-trigger">Carregando mais rádios...</div>
+        <div id="home-content">
+            <div id="carousels-area"></div>
+            <div class="section-title">Explorar Brasil</div>
+            <div id="explore-grid" class="explore-grid"></div>
+            <div id="loading-trigger">CARREGANDO RÁDIO TURBO...</div>
         </div>
     </div>
 
     <div id="player-view">
+        <button onclick="closePlayer()" style="position:absolute; top:50px; left:30px; background:none; border:none; color:white; font-size:18px;">Fechar</button>
         <img id="p-art" class="player-art" src="">
-        <div class="player-meta">
-            <h2 id="p-name">Selecionar Rádio</h2>
-            <p id="p-loc">Cidade, País</p>
+        <h2 id="p-name">Nome da Rádio</h2>
+        <p id="p-loc" style="color: #888; margin-top: 10px;">Localização</p>
+        <div onclick="togglePlayback()" style="margin-top: 40px; transform: scale(2.5);">
+             <svg id="play-icon-large" viewBox="0 0 24 24" width="30"><path fill="white" d="M8 5v14l11-7z"/></svg>
         </div>
     </div>
 
     <div class="apple-dock">
         <div class="nav-item active" onclick="changeTab('home', this)">
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            <span>Início</span>
+            <span style="font-size: 9px; font-weight: bold;">INÍCIO</span>
         </div>
-        <div class="nav-item" onclick="changeTab('lib', this)">
-            <div id="badge-favs">0</div>
-            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
-            <span>Biblioteca</span>
-        </div>
-        
-        <div class="dock-play-btn" onclick="handleDockPlayClick()">
+        <div class="dock-play-btn" onclick="openPlayer()">
             <img id="dock-thumb" src="">
-            <svg viewBox="0 0 24 24" width="30"><path id="play-icon" fill="white" d="M8 5v14l11-7z"/></svg>
+            <svg id="dock-play-svg" viewBox="0 0 24 24" width="28" style="z-index: 2;"><path fill="white" d="M8 5v14l11-7z"/></svg>
         </div>
-
         <div class="nav-item" onclick="changeTab('grid', this)">
             <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            <span>Busca</span>
+            <span style="font-size: 9px; font-weight: bold;">BUSCA</span>
         </div>
     </div>
 
@@ -166,238 +149,134 @@
 
     <script>
         const audio = document.getElementById('audio-engine');
-        const carouselsArea = document.getElementById('carousels-area');
-        const exploreCarousel = document.getElementById('explore-carousel');
-        const badge = document.getElementById('badge-favs');
-        const searchInput = document.getElementById('input-busca');
-        const searchMsg = document.getElementById('search-msg');
+        const exploreGrid = document.getElementById('explore-grid');
         const loadingTrigger = document.getElementById('loading-trigger');
-        const dockThumb = document.getElementById('dock-thumb');
-
         let radioData = [];
-        let favorites = JSON.parse(localStorage.getItem('lamonie_favs')) || [];
         let offset = 0;
         let isFetching = false;
-        let currentTab = 'home';
-        let currentRadio = null;
+        let searchTimer;
 
-        const placeholder = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-
-        async function loadRadios() {
-            if(isFetching || currentTab !== 'home') return;
-            isFetching = true;
-            try {
-                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=50&offset=${offset}&hidebroken=true&order=clickcount&reverse=true`);
-                const data = await response.json();
-                if (data.length > 0) {
-                    radioData = [...radioData, ...data];
-                    if(offset === 0) renderHome(data);
-                    else addToExplore(data);
-                    offset += 50;
+        // Observer para carregar imagens apenas quando visíveis (Otimização de Velocidade)
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.onload = () => img.classList.add('loaded');
+                    observer.unobserve(img);
                 }
-            } catch (err) { console.error(err); }
-            finally { isFetching = false; }
-        }
-
-        function renderHome(data) {
-            carouselsArea.innerHTML = '';
-            const frag = document.createDocumentFragment();
-            
-            // Dois carrosséis horizontais originais (NÃO MEXIDOS)
-            createCarousel("Mais Ouvidas", data.slice(0, 15), frag);
-            createCarousel("Destaques", data.slice(15, 30), frag);
-
-            carouselsArea.appendChild(frag);
-            
-            // Preenche o novo carrossel da seção Explorar Todas
-            exploreCarousel.innerHTML = '';
-            addToExplore(data.slice(30));
-        }
-
-        function createCarousel(title, list, container) {
-            const section = document.createElement('div');
-            section.className = 'section-container';
-            section.innerHTML = `<div class="section-title">${title}</div><div class="horizontal-scroll"></div>`;
-            const scroll = section.querySelector('.horizontal-scroll');
-            list.forEach(r => scroll.appendChild(createCard(r)));
-            container.appendChild(section);
-        }
-
-        function addToExplore(list) {
-            const frag = document.createDocumentFragment();
-            list.forEach(r => frag.appendChild(createCard(r)));
-            exploreCarousel.appendChild(frag);
-        }
-
-        function createCard(radio) {
-            const isFav = favorites.some(f => f.stationuuid === radio.stationuuid);
-            const el = document.createElement('div');
-            el.className = 'card';
-            el.onclick = () => openRadioDetails(radio);
-            
-            el.innerHTML = `
-                <div class="copy-btn" onclick="copyRadioLink(event, '${radio.url_resolved || ''}', this)">
-                    <svg viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                </div>
-
-                <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
-                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                </div>
-
-                <img class="card-img skeleton" src="${radio.favicon || placeholder}" loading="lazy" 
-                     onload="this.classList.remove('skeleton')" 
-                     onerror="this.src='https://via.placeholder.com/140/2c2c2e/fff?text=Radio'">
-                <div class="card-info">${radio.name}</div>
-            `;
-            return el;
-        }
-
-        function copyRadioLink(e, url, btn) {
-            e.stopPropagation();
-            if (!url) return;
-            navigator.clipboard.writeText(url).then(() => {
-                const original = btn.innerHTML;
-                btn.classList.add('copied');
-                btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
-                setTimeout(() => {
-                    btn.classList.remove('copied');
-                    btn.innerHTML = original;
-                }, 1800);
             });
-        }
+        });
 
-        function changeTab(mode, btn) {
-            currentTab = mode;
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            
-            document.getElementById('player-view').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            
-            const searchArea = document.getElementById('search-bar-area');
-            const gridTitle = document.getElementById('section-grid-title');
+        async function fetchRadios(reset = false) {
+            if (isFetching) return;
+            isFetching = true;
+            if (reset) { offset = 0; exploreGrid.innerHTML = ''; }
 
-            if(mode === 'home') {
-                document.getElementById('page-title').innerText = "LAMONIÊ FLASH";
-                searchArea.style.display = 'none';
-                carouselsArea.style.display = 'block';
-                gridTitle.style.display = 'block';
-                loadingTrigger.style.display = 'flex';
-                offset = 0; 
-                radioData = []; 
-                loadRadios();
-            } else if(mode === 'lib') {
-                document.getElementById('page-title').innerText = "Biblioteca";
-                searchArea.style.display = 'none';
-                carouselsArea.style.display = 'none';
-                gridTitle.style.display = 'none';
-                loadingTrigger.style.display = 'none';
-                exploreCarousel.innerHTML = '';
-                favorites.forEach(f => exploreCarousel.appendChild(createCard(f)));
-            } else if(mode === 'grid') {
-                document.getElementById('page-title').innerText = "Busca";
-                searchArea.style.display = 'block';
-                carouselsArea.style.display = 'none';
-                gridTitle.style.display = 'none';
-                loadingTrigger.style.display = 'none';
-                exploreCarousel.innerHTML = '';
-                searchMsg.style.display = 'block';
+            try {
+                const response = await fetch(`https://de1.api.radio-browser.info/json/stations/search?country=Brazil&limit=40&offset=${offset}&order=clickcount&reverse=true&hidebroken=true`);
+                const data = await response.json();
+                
+                if (data.length > 0) {
+                    renderRadios(data);
+                    offset += 40;
+                } else {
+                    loadingTrigger.innerText = "FIM DA LISTA";
+                }
+            } catch (e) {
+                console.error("Erro ao carregar", e);
+            } finally {
+                isFetching = false;
             }
         }
 
-        function executarBusca() {
-            const termo = searchInput.value.toLowerCase().trim();
-            exploreCarousel.innerHTML = '';
-            if (termo === "") { 
-                searchMsg.style.display = 'block'; 
-                return; 
-            }
-            searchMsg.style.display = 'none';
-            const filtrados = radioData.filter(r => r.name.toLowerCase().includes(termo));
+        function renderRadios(list) {
             const frag = document.createDocumentFragment();
-            filtrados.forEach(r => frag.appendChild(createCard(r)));
-            exploreCarousel.appendChild(frag);
+            list.forEach(radio => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => playRadio(radio);
+                
+                const art = radio.favicon || `https://ui-avatars.com/api/?name=${encodeURIComponent(radio.name)}&background=2c2c2e&color=fff`;
+                
+                card.innerHTML = `
+                    <div class="fav-btn" onclick="event.stopPropagation(); this.classList.toggle('active')">
+                        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    </div>
+                    <img class="card-img skeleton" data-src="${art}">
+                    <div class="card-info">${radio.name}</div>
+                `;
+                imageObserver.observe(card.querySelector('img'));
+                frag.appendChild(card);
+            });
+            exploreGrid.appendChild(frag);
         }
 
-        function openRadioDetails(radio) {
+        function playRadio(radio) {
             currentRadio = radio;
-            const art = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
+            audio.src = radio.url_resolved;
+            audio.play();
             
-            document.getElementById('p-art').src = art;
+            document.getElementById('p-art').src = radio.favicon || '';
             document.getElementById('p-name').innerText = radio.name;
-            document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
-            document.getElementById('player-view').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('p-loc').innerText = radio.state || 'Brasil';
+            document.getElementById('dock-thumb').src = radio.favicon || '';
+            document.getElementById('dock-thumb').style.opacity = '1';
             
-            dockThumb.src = art;
-            dockThumb.style.display = 'block';
-
-            updateMediaSession(radio);
-
-            if(audio.src !== radio.url_resolved) { 
-                audio.src = radio.url_resolved; 
-                audio.play(); 
-                updateIcon(true); 
-            }
+            updateIcons(true);
+            openPlayer();
         }
 
-        function updateMediaSession(radio) {
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: radio.name,
-                    artist: 'LAMONIÊ FLASH',
-                    album: radio.state || radio.country,
-                    artwork: [{ src: radio.favicon || '', sizes: '512x512', type: 'image/png' }]
-                });
-                navigator.mediaSession.setActionHandler('play', () => { audio.play(); updateIcon(true); });
-                navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); updateIcon(false); });
-            }
-        }
-
-        function handleDockPlayClick() {
-            if(!currentRadio) return;
-            if(document.getElementById('player-view').style.display === 'none') {
-                openRadioDetails(currentRadio);
-            } else {
-                togglePlayback();
-            }
-        }
-
-        function toggleFav(e, uuid) {
-            e.stopPropagation();
-            const idx = favorites.findIndex(f => f.stationuuid === uuid);
-            if(idx > -1) favorites.splice(idx, 1);
-            else { 
-                const r = radioData.find(x => x.stationuuid === uuid); 
-                if(r) favorites.push(r); 
-            }
-            localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
-            e.currentTarget.classList.toggle('active');
-            updateBadge();
-            if(currentTab === 'lib') changeTab('lib', document.querySelectorAll('.nav-item')[1]);
-        }
-
-        function updateBadge() {
-            badge.innerText = favorites.length;
-            badge.style.display = favorites.length > 0 ? 'flex' : 'none';
+        function updateIcons(playing) {
+            const path = playing ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z";
+            document.getElementById('dock-play-svg').querySelector('path').setAttribute('d', path);
+            document.getElementById('play-icon-large').querySelector('path').setAttribute('d', path);
         }
 
         function togglePlayback() {
-            if(!audio.src) return;
-            if(audio.paused) { audio.play(); updateIcon(true); }
-            else { audio.pause(); updateIcon(false); }
+            if (audio.paused) { audio.play(); updateIcons(true); }
+            else { audio.pause(); updateIcons(false); }
         }
 
-        function updateIcon(p) { 
-            document.getElementById('play-icon').setAttribute('d', p ? "M6 19h4V5H6v14zm8-14v14h4V5h-4z" : "M8 5v14l11-7z"); 
+        function changeTab(tab, btn) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (tab === 'grid') {
+                document.getElementById('search-bar-area').style.display = 'block';
+                document.getElementById('home-content').style.display = 'none';
+            } else {
+                document.getElementById('search-bar-area').style.display = 'none';
+                document.getElementById('home-content').style.display = 'block';
+            }
         }
 
+        function debounceSearch() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(async () => {
+                const term = document.getElementById('input-busca').value;
+                if (term.length < 3) return;
+                
+                exploreGrid.innerHTML = '<p style="padding:20px">Buscando...</p>';
+                const res = await fetch(`https://de1.api.radio-browser.info/json/stations/byname/${encodeURIComponent(term)}?limit=30`);
+                const data = await res.json();
+                exploreGrid.innerHTML = '';
+                renderRadios(data);
+            }, 500);
+        }
+
+        function openPlayer() { document.getElementById('player-view').style.display = 'flex'; }
+        function closePlayer() { document.getElementById('player-view').style.display = 'none'; }
+
+        // Scroll infinito
         window.onscroll = () => {
-            if (currentTab === 'home' && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) loadRadios();
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
+                fetchRadios();
+            }
         };
 
-        loadRadios();
-        updateBadge();
+        // Início
+        fetchRadios();
     </script>
 </body>
 </html>

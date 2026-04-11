@@ -32,14 +32,25 @@
         .section-title { padding: 0 20px 10px; font-size: 18px; font-weight: 700; color: #fff; }
         
         .horizontal-scroll { 
-            display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px; 
-            scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth;
+            display: flex; 
+            overflow-x: auto; 
+            gap: 15px; 
+            padding: 0 20px 10px; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+            scroll-behavior: smooth;
         }
         .horizontal-scroll::-webkit-scrollbar { display: none; }
 
         .card { 
-            width: 140px; min-width: 140px; background: #1c1c1e; border-radius: 14px; 
-            overflow: hidden; border: 0.5px solid #333; position: relative; flex-shrink: 0;
+            width: 140px; 
+            min-width: 140px; 
+            background: #1c1c1e; 
+            border-radius: 14px;
+            overflow: hidden; 
+            border: 0.5px solid #333; 
+            position: relative; 
+            flex-shrink: 0;
         }
         .card-img { width: 140px; height: 140px; object-fit: cover; display: block; background: #2c2c2e; }
         .card-info { padding: 10px 8px; font-size: 12px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -51,6 +62,18 @@
         }
         .fav-btn svg { width: 18px; fill: #666; }
         .fav-btn.active svg { fill: var(--yellow); }
+
+        /* Botão Copiar */
+        .copy-btn {
+            position: absolute; top: 6px; left: 6px; width: 30px; height: 30px;
+            background: rgba(0,0,0,0.7); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; z-index: 10;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .copy-btn svg { width: 16px; fill: #aaa; }
+        .copy-btn:hover { background: rgba(255,45,85,0.3); }
+        .copy-btn.copied { background: #22c55e; }
+        .copy-btn.copied svg { fill: white; }
 
         .grid-wrapper { width: 100vw; padding: 0 20px 120px; display: block; }
         .multi-direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
@@ -66,7 +89,6 @@
         .nav-item.active svg { fill: var(--apple-red); }
         #badge-favs { position: absolute; top: -6px; right: 20%; background: var(--yellow); color: #000; font-size: 10px; font-weight: 900; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; padding: 0 4px; }
         
-        /* MINIATURA NO BOTÃO CENTRAL */
         .dock-play-btn { width: 58px; height: 58px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); position: relative; overflow: hidden; }
         #dock-thumb { position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
         #play-icon { z-index: 2; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
@@ -140,7 +162,7 @@
         let offset = 0;
         let isFetching = false;
         let currentTab = 'home';
-        let currentRadio = null; // Armazena a rádio que está tocando agora
+        let currentRadio = null;
 
         const placeholder = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
@@ -163,16 +185,16 @@
         function renderHome(data) {
             carouselsArea.innerHTML = '';
             const frag = document.createDocumentFragment();
+            
+            // Carrosséis originais (não alterados)
             createCarousel("Mais Ouvidas", data.slice(0, 15), frag);
             createCarousel("Destaques", data.slice(15, 30), frag);
-            carouselsArea.appendChild(frag);
-            addToGrid(data.slice(30));
-        }
+            
+            // Novo carrossel horizontal
+            createCarousel("Mais Rádios", data.slice(30, 60), frag);
 
-        function addToGrid(list) {
-            const frag = document.createDocumentFragment();
-            list.forEach(r => frag.appendChild(createCard(r)));
-            masterGrid.appendChild(frag);
+            carouselsArea.appendChild(frag);
+            addToGrid(data.slice(60));
         }
 
         function createCarousel(title, list, container) {
@@ -189,14 +211,46 @@
             const el = document.createElement('div');
             el.className = 'card';
             el.onclick = () => openRadioDetails(radio);
+            
             el.innerHTML = `
+                <!-- Botão Copiar -->
+                <div class="copy-btn" onclick="copyRadioLink(event, '${radio.url_resolved || ''}', this)">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                </div>
+
+                <!-- Botão Favorito -->
                 <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${radio.stationuuid}')">
                     <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                 </div>
-                <img class="card-img skeleton" src="${radio.favicon || placeholder}" loading="lazy" onload="this.classList.remove('skeleton')" onerror="this.src='https://via.placeholder.com/140/2c2c2e/fff?text=Radio'">
+
+                <img class="card-img skeleton" src="${radio.favicon || placeholder}" loading="lazy" 
+                     onload="this.classList.remove('skeleton')" 
+                     onerror="this.src='https://via.placeholder.com/140/2c2c2e/fff?text=Radio'">
                 <div class="card-info">${radio.name}</div>
             `;
             return el;
+        }
+
+        function copyRadioLink(e, url, btn) {
+            e.stopPropagation();
+            if (!url) return;
+            
+            navigator.clipboard.writeText(url).then(() => {
+                const original = btn.innerHTML;
+                btn.classList.add('copied');
+                btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+                
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = original;
+                }, 1800);
+            });
+        }
+
+        function addToGrid(list) {
+            const frag = document.createDocumentFragment();
+            list.forEach(r => frag.appendChild(createCard(r)));
+            masterGrid.appendChild(frag);
         }
 
         function changeTab(mode, btn) {
@@ -217,7 +271,9 @@
                 gridTitle.style.display = 'block';
                 loadingTrigger.style.display = 'flex';
                 masterGrid.innerHTML = '';
-                offset = 0; radioData = []; loadRadios();
+                offset = 0; 
+                radioData = []; 
+                loadRadios();
             } else if(mode === 'lib') {
                 document.getElementById('page-title').innerText = "Biblioteca";
                 searchArea.style.display = 'none';
@@ -240,28 +296,28 @@
         function executarBusca() {
             const termo = searchInput.value.toLowerCase().trim();
             masterGrid.innerHTML = '';
-            if (termo === "") { searchMsg.style.display = 'block'; return; }
+            if (termo === "") { 
+                searchMsg.style.display = 'block'; 
+                return; 
+            }
             searchMsg.style.display = 'none';
             const filtrados = radioData.filter(r => r.name.toLowerCase().includes(termo));
             addToGrid(filtrados);
         }
 
         function openRadioDetails(radio) {
-            currentRadio = radio; // Guarda a rádio ativa
+            currentRadio = radio;
             const art = radio.favicon || 'https://via.placeholder.com/300/2c2c2e/fff?text=Radio';
             
-            // Atualiza tela de detalhes
             document.getElementById('p-art').src = art;
             document.getElementById('p-name').innerText = radio.name;
             document.getElementById('p-loc').innerText = `${radio.state || ''}, ${radio.country}`;
             document.getElementById('player-view').style.display = 'flex';
             document.getElementById('main-content').style.display = 'none';
             
-            // Atualiza miniatura no Dock
             dockThumb.src = art;
             dockThumb.style.display = 'block';
 
-            // Inteligência para a tela de bloqueio do iPhone
             updateMediaSession(radio);
 
             if(audio.src !== radio.url_resolved) { 
@@ -271,29 +327,21 @@
             }
         }
 
-        // Função para mandar capinha e nome para a tela de bloqueio do iPhone
         function updateMediaSession(radio) {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: radio.name,
                     artist: 'Lamoniê Flow - Premium',
                     album: radio.state || radio.country,
-                    artwork: [
-                        { src: radio.favicon || '', sizes: '512x512', type: 'image/png' }
-                    ]
+                    artwork: [{ src: radio.favicon || '', sizes: '512x512', type: 'image/png' }]
                 });
-
-                // Permite controlar play/pause pela tela de bloqueio
                 navigator.mediaSession.setActionHandler('play', () => { audio.play(); updateIcon(true); });
                 navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); updateIcon(false); });
             }
         }
 
-        // Função do botão central: se tocar na capinha volta pra rádio, se tocar no ícone pausa
         function handleDockPlayClick() {
             if(!currentRadio) return;
-            
-            // Se o usuário clicar na capinha pequena e o player estiver fechado, abre ele
             if(document.getElementById('player-view').style.display === 'none') {
                 openRadioDetails(currentRadio);
             } else {
@@ -305,7 +353,10 @@
             e.stopPropagation();
             const idx = favorites.findIndex(f => f.stationuuid === uuid);
             if(idx > -1) favorites.splice(idx, 1);
-            else { const r = radioData.find(x => x.stationuuid === uuid); if(r) favorites.push(r); }
+            else { 
+                const r = radioData.find(x => x.stationuuid === uuid); 
+                if(r) favorites.push(r); 
+            }
             localStorage.setItem('lamonie_favs', JSON.stringify(favorites));
             e.currentTarget.classList.toggle('active');
             updateBadge();
